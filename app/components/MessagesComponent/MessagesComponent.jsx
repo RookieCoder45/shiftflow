@@ -5,7 +5,7 @@ import { useData } from "../../context/DataContext"
 import styles from "./messages.module.css"
 
 export default function MessagesComponent() {
-  const { inbox, markAsRead, currentUser, sendMessage, unreadCount, acceptCoverageRequest } = useData()
+  const { inbox, markAsRead, currentUser, sendMessage, unreadCount, acceptCoverageRequest, acceptCoverageOffer } = useData()
   const [selectedThreadUser, setSelectedThreadUser] = useState(null) // { id, name }
   const [replyContent, setReplyContent] = useState("")
   const [isSending, setIsSending] = useState(false)
@@ -90,6 +90,20 @@ export default function MessagesComponent() {
     }
   }
 
+  const handleAcceptOffer = async (msg) => {
+    if (isProcessingAction) return
+    setIsProcessingAction(true)
+    
+    const res = await acceptCoverageOffer(msg.id, msg.sender_id, msg.related_date)
+    
+    setIsProcessingAction(false)
+    if (res.success) {
+      alert("Offer Accepted! Calendars updated.")
+    } else {
+      alert("Error accepting offer. Please try again.")
+    }
+  }
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -166,12 +180,18 @@ export default function MessagesComponent() {
                           <span>Coverage requested for <strong>{msg.related_date}</strong></span>
                         </div>
                       )}
+                      {msg.category === 'coverage_offer' && (
+                        <div className={styles.bubbleRequestHeader} style={{background: 'rgba(16, 185, 129, 0.1)', color: '#059669', borderBottom: '1px solid rgba(16, 185, 129, 0.2)'}}>
+                          <span className={styles.reqIcon}>🤝</span>
+                          <span>Offered to cover your shift on <strong>{msg.related_date}</strong></span>
+                        </div>
+                      )}
                       <p>{msg.content}</p>
                       <span className={styles.bubbleTime}>
                         {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                       
-                      {msg.category === 'coverage_request' && msg.sender_id !== currentUser.id && (
+                      {msg.category === 'coverage_request' && msg.sender_id !== currentUser.id && !msg.read && (
                         <div className={styles.bubbleActions}>
                           <button 
                             className={styles.bubbleAcceptBtn}
@@ -179,6 +199,18 @@ export default function MessagesComponent() {
                             disabled={isProcessingAction}
                           >
                             {isProcessingAction ? "..." : "Accept Request"}
+                          </button>
+                        </div>
+                      )}
+                      {msg.category === 'coverage_offer' && msg.sender_id !== currentUser.id && !msg.read && (
+                        <div className={styles.bubbleActions}>
+                          <button 
+                            className={styles.bubbleAcceptBtn}
+                            style={{background: '#10b981'}}
+                            onClick={() => handleAcceptOffer(msg)}
+                            disabled={isProcessingAction}
+                          >
+                            {isProcessingAction ? "..." : "Accept Offer"}
                           </button>
                         </div>
                       )}

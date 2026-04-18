@@ -52,10 +52,14 @@ export function DataProvider({ children }) {
       const today = new Date().toISOString().split('T')[0]
       const hasPastAvailable = currentUser.available_to_work_dates?.some(d => d.trim() < today)
       const hasPastCoverage = currentUser.need_coverage_dates?.some(d => d.trim() < today)
+      const hasPastCash = currentUser.need_coverage_cash_dates?.some(d => d.trim() < today)
+      const hasPastPayback = currentUser.need_coverage_payback_dates?.some(d => d.trim() < today)
 
-      if (hasPastAvailable || hasPastCoverage) {
+      if (hasPastAvailable || hasPastCoverage || hasPastCash || hasPastPayback) {
         const cleanAvailable = (currentUser.available_to_work_dates || []).filter(d => d.trim() >= today)
         const cleanCoverage = (currentUser.need_coverage_dates || []).filter(d => d.trim() >= today)
+        const cleanCash = (currentUser.need_coverage_cash_dates || []).filter(d => d.trim() >= today)
+        const cleanPayback = (currentUser.need_coverage_payback_dates || []).filter(d => d.trim() >= today)
 
         console.log("Found past dates. Sanitizing profile...")
         
@@ -63,7 +67,9 @@ export function DataProvider({ children }) {
           .from("profiles")
           .update({ 
             available_to_work_dates: cleanAvailable,
-            need_coverage_dates: cleanCoverage
+            need_coverage_dates: cleanCoverage,
+            need_coverage_cash_dates: cleanCash,
+            need_coverage_payback_dates: cleanPayback
           })
           .eq("id", currentUser.id)
           .select()
@@ -211,24 +217,27 @@ export function DataProvider({ children }) {
       // We fetch their current profile to modify their dates
       const { data: senderProfile } = await supabase
         .from("profiles")
-        .select("need_coverage_dates")
+        .select("need_coverage_dates, need_coverage_cash_dates, need_coverage_payback_dates")
         .eq("id", senderId)
         .single()
 
       if (senderProfile) {
         const updatedSenderDates = (senderProfile.need_coverage_dates || []).filter(d => d.trim() !== date.trim())
+        const updatedCashDates = (senderProfile.need_coverage_cash_dates || []).filter(d => d.trim() !== date.trim())
+        const updatedPaybackDates = (senderProfile.need_coverage_payback_dates || []).filter(d => d.trim() !== date.trim())
         await supabase
           .from("profiles")
-          .update({ need_coverage_dates: updatedSenderDates })
+          .update({ 
+              need_coverage_dates: updatedSenderDates,
+              need_coverage_cash_dates: updatedCashDates,
+              need_coverage_payback_dates: updatedPaybackDates
+          })
           .eq("id", senderId)
       }
 
       // 2. Update Receiver (The current user who accepted)
       const updatedMyDates = [...(currentUser.available_to_work_dates || []), date]
-      await updateProfileDates({ 
-        available: updatedMyDates, 
-        coverage: currentUser.need_coverage_dates 
-      })
+      await updateProfileDates(currentUser.id, "available_to_work_dates", updatedMyDates)
 
       // 3. Send automatic confirmation message
       await sendMessage(senderId, `I'VE ACCEPTED YOUR REQUEST! I'll cover your shift on ${date}.`, "standard")
@@ -239,6 +248,47 @@ export function DataProvider({ children }) {
       return { success: true }
     } catch (err) {
       console.error("Error accepting request:", err)
+      return { success: false }
+    }
+  }
+
+  const acceptCoverageOffer = async (messageId, senderId, date) => {
+    if (!currentUser) return { success: false }
+
+    try {
+      // 1. Update Receiver (The current user who originally needed coverage, now accepting the offer)
+      const updatedCoverage = (currentUser.need_coverage_dates || []).filter(d => d.trim() !== date.trim())
+      const updatedCash = (currentUser.need_coverage_cash_dates || []).filter(d => d.trim() !== date.trim())
+      const updatedPayback = (currentUser.need_coverage_payback_dates || []).filter(d => d.trim() !== date.trim())
+      
+      await updateProfileDates(currentUser.id, "need_coverage_dates", updatedCoverage)
+      await updateProfileDates(currentUser.id, "need_coverage_cash_dates", updatedCash)
+      await updateProfileDates(currentUser.id, "need_coverage_payback_dates", updatedPayback)
+
+      // 2. Update Sender (The one who offered to cover)
+      const { data: senderProfile } = await supabase
+        .from("profiles")
+        .select("available_to_work_dates")
+        .eq("id", senderId)
+        .single()
+
+      if (senderProfile) {
+        const updatedSenderDates = [...(senderProfile.available_to_work_dates || []), date]
+        await supabase
+          .from("profiles")
+          .update({ available_to_work_dates: Array.from(new Set(updatedSenderDates)) })
+          .eq("id", senderId)
+      }
+
+      // 3. Send automatic confirmation message
+      await sendMessage(senderId, `I'VE ACCEPTED YOUR OFFER! Thank you for covering my shift on ${date}.`, "standard")
+
+      // 4. Mark the original offer as read
+      await markAsRead(messageId)
+
+      return { success: true }
+    } catch (err) {
+      console.error("Error accepting offer:", err)
       return { success: false }
     }
   }
@@ -262,7 +312,7 @@ export function DataProvider({ children }) {
       updateShift, createProfile, updateProfileDates, 
       activeMatchContext, setActiveMatchContext,
       inbox, sendMessage, markAsRead, unreadCount,
-      acceptCoverageRequest,
+      acceptCoverageRequest, acceptCoverageOffer,
       loading 
     }}>
       {children}

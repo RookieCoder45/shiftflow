@@ -1,0 +1,22 @@
+.returnHomeBtn {
+    background-color: var(--glass-bg);
+    color: var(--text-primary);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    
+}
+
+.returnHomeBtn:hover {
+    background-color: var(--brand-color-hover);
+    transform: translateY(-2px);
+    box-shadow: 4px 4px 10px var(--shadow-color-hover);
+}

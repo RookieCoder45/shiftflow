@@ -13,7 +13,7 @@ export default function ProfileComponent() {
   const [isUpdating, setIsUpdating] = useState(false)
   const [newDate, setNewDate] = useState({ available: "", coverage: "" })
   const [localDates, setLocalDates] = useState({ available: [], coverage: [] })
-  
+
   // Calendar State
   const [currentViewDate, setCurrentViewDate] = useState(new Date())
   const [selectionMode, setSelectionMode] = useState('available') // 'available' | 'coverage'
@@ -54,7 +54,7 @@ export default function ProfileComponent() {
           <div className={styles.emptyIcon}>👤</div>
           <h2>No Profile Found</h2>
           <p>It looks like you haven't set up your ShiftFlow profile yet.</p>
-          <button 
+          <button
             className={styles.primaryBtn}
             onClick={() => window.dispatchEvent(new CustomEvent('navigate', { detail: 'profileCreation' }))}
           >
@@ -99,7 +99,7 @@ export default function ProfileComponent() {
   // Calendar Helpers
   const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
   const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
-  
+
   const formatDate = (date) => {
     const d = new Date(date);
     let month = '' + (d.getMonth() + 1);
@@ -112,10 +112,10 @@ export default function ProfileComponent() {
 
   const handleDayClick = (dayNum) => {
     const today = new Date();
-    today.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
     const maxDate = new Date();
     maxDate.setFullYear(maxDate.getFullYear() + 1);
-    
+
     const clickedDate = new Date(currentViewDate.getFullYear(), currentViewDate.getMonth(), dayNum);
     const dateStr = formatDate(clickedDate);
     const shiftType = getShiftForDate(clickedDate, currentUser.shift);
@@ -148,12 +148,12 @@ export default function ProfileComponent() {
 
   const changeMonth = (delta) => {
     const newView = new Date(currentViewDate.getFullYear(), currentViewDate.getMonth() + delta, 1);
-    
+
     // Prevent navigating too far back or forward
     const today = new Date();
     const minMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     const maxMonth = new Date(today.getFullYear() + 1, today.getMonth() + 1, 0);
-    
+
     if (newView < minMonth && delta < 0) return;
     if (newView > maxMonth && delta > 0) return;
 
@@ -163,7 +163,7 @@ export default function ProfileComponent() {
 
 
 
- 
+
   return (
     <div className={styles.container}>
       {/* Identity Banner */}
@@ -183,11 +183,11 @@ export default function ProfileComponent() {
             <span className={styles.statusDot}></span>
             <span className={styles.statusText}>Active Now</span>
             <div className={styles.headerActions}>
-           <button onClick={signOut} className={`${styles.logoutBtn} ${styles.primaryBtn}`}>Sign Out</button>
-        </div>
+              <button onClick={signOut} className={`${styles.logoutBtn} ${styles.primaryBtn}`}>Sign Out</button>
+            </div>
           </div>
         </div>
-        
+
       </section>
 
       <section className={styles.mainGrid}>
@@ -203,27 +203,27 @@ export default function ProfileComponent() {
             <div className={styles.calendarWidget}>
               <div className={styles.calendarHeader}>
                 <div className={styles.modeToggle}>
-                  <button 
+                  <button
                     className={`${styles.modeBtn} ${selectionMode === 'available' ? styles.activeAvailable : ""}`}
                     onClick={() => setSelectionMode('available')}
                   >
                     Available for Mutuals
                   </button>
-                  <button 
+                  <button
                     className={`${styles.modeBtn} ${selectionMode === 'coverage' ? styles.activeCoverage : ""}`}
                     onClick={() => setSelectionMode('coverage')}
                   >
                     Need Coverage
                   </button>
                 </div>
-                
+
                 <div className={styles.calendarNav}>
                   <button onClick={() => changeMonth(-1)}>←</button>
                   <h4>{months[currentViewDate.getMonth()]} {currentViewDate.getFullYear()}</h4>
                   <button onClick={() => changeMonth(1)}>→</button>
                 </div>
               </div>
-              
+
               <div className={styles.miniGrid}>
                 {daysOfWeek.map(d => <div key={d} className={styles.dayOfWeek}>{d}</div>)}
                 {Array.from({ length: getFirstDayOfMonth(currentViewDate.getFullYear(), currentViewDate.getMonth()) }).map((_, i) => (
@@ -232,26 +232,26 @@ export default function ProfileComponent() {
                 {Array.from({ length: getDaysInMonth(currentViewDate.getFullYear(), currentViewDate.getMonth()) }).map((_, i) => {
                   const dayNum = i + 1;
                   const dateObj = new Date(currentViewDate.getFullYear(), currentViewDate.getMonth(), dayNum);
-                  
+
                   const shiftType = getShiftForDate(dateObj, currentUser.shift);
                   const dateStr = formatDate(dateObj);
                   const isAvailable = localDates.available.includes(dateStr);
                   const isCoverage = localDates.coverage.includes(dateStr);
 
                   const today = new Date();
-                  today.setHours(0,0,0,0);
+                  today.setHours(0, 0, 0, 0);
                   const maxDate = new Date();
                   maxDate.setFullYear(maxDate.getFullYear() + 1);
                   const isOutOfRange = dateObj < today || dateObj > maxDate;
-                  
+
                   let shiftClass = "";
                   if (shiftType === "Day Shift") shiftClass = styles.dayShift;
                   else if (shiftType === "Night Shift") shiftClass = styles.nightShift;
                   else if (shiftType === "Day Off") shiftClass = styles.offShift;
 
                   return (
-                    <div 
-                      key={dayNum} 
+                    <div
+                      key={dayNum}
                       className={`${styles.miniDay} ${shiftClass} ${isAvailable ? styles.hasAvailable : ""} ${isCoverage ? styles.hasCoverage : ""} ${isOutOfRange ? styles.isOutOfRange : ""}`}
                       onClick={() => !isOutOfRange && handleDayClick(dayNum)}
                     >
@@ -263,8 +263,8 @@ export default function ProfileComponent() {
               </div>
 
               <div className={styles.selectionNote}>
-                {selectionMode === 'available' 
-                  ? "Tap days off to mark as Available for Mutuals." 
+                {selectionMode === 'available'
+                  ? "Tap days off to mark as Available for Mutuals."
                   : "Tap working shifts to request Coverage."
                 }
               </div>
@@ -275,8 +275,8 @@ export default function ProfileComponent() {
                   <div className={styles.coverageList}>
                     {localDates.coverage.map(date => (
                       <div key={date} className={styles.coverageItem}>
-                        <span>{new Date(date + 'T00:00:00').toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</span>
-                        <button 
+                        <span>{new Date(date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                        <button
                           className={styles.matchBtn}
                           onClick={() => {
                             setActiveMatchContext({
@@ -295,10 +295,10 @@ export default function ProfileComponent() {
               )}
             </div>
           </div>
-          
+
           <div className={styles.cardFooter}>
-            <button 
-              className={styles.saveBtn} 
+            <button
+              className={styles.saveBtn}
               onClick={handleSaveDates}
               disabled={isUpdating}
             >

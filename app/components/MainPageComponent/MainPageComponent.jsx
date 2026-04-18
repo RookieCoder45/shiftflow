@@ -2,6 +2,8 @@
 
 import styles from "./main.module.css"
 import { useData } from "../../context/DataContext"
+import MutualPosts from "../MutualsPostsComponent/MutualPosts"
+
 
 export default function MainPageComponent({ onNavigate }) {
   const { currentUser } = useData()
@@ -19,12 +21,13 @@ export default function MainPageComponent({ onNavigate }) {
       <header className={styles.heroSection}>
         <div className={styles.heroBadge}>✨ Next-Gen Scheduling</div>
         <h1 className={styles.heroTitle}>Premium <span>ShiftFlow</span> Management</h1>
-        <p className={styles.heroSubtitle}>
-          Master your schedule with precision rotational tracking, automated shift cycles, and seamless team coordination across the mine.
-        </p>
         <div className={styles.ctaGroup}>
-          <button className={styles.primaryBtn} onClick={handleGetStarted}>Get Started</button>
+          <button className={styles.requestCoverageBtn} onClick={() => onNavigate("requestCoverage")}>Request coverage</button>
+          <button className={styles.offerCoverageBtn} onClick={() => onNavigate("offerCoverage")}>Offer coverage</button>
         </div>
+        <MutualPosts />
+      
+        
       </header>
       
       

@@ -24,6 +24,8 @@
 
   --brand-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
   --brand-glow: 0 0 20px rgba(99, 102, 241, 0.3);
+
+  --shadow-color-hover: rgba(218, 219, 226, 0.904);
 }
 
 [data-theme='dark'] {
@@ -43,6 +45,7 @@
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.8), 0 4px 6px -2px rgba(0, 0, 0, 0.5);
 
   --gradient-background: radial-gradient(circle at top right, #0f172a 0%, #020617 100%);
+   --shadow-color-hover: rgba(181, 247, 247, 0.904);
 }
 
 * {

@@ -11,6 +11,8 @@ import CrewComponent from "./components/CrewComponent/CrewComponent"
 import { useAuth } from "./context/AuthContext"
 import { useData } from "./context/DataContext"
 import MessagesComponent from "./components/MessagesComponent/MessagesComponent"
+import CoverageRequestComponent from "./components/MutualsPostsComponent/CoverageRequestComponent"
+import OfferCoverageComponent from "./components/MutualsPostsComponent/OfferCoverageComponent"
 
 export default function Home () {
   const [mobileContent, setMobileContent] = useState("home")
@@ -43,7 +45,8 @@ export default function Home () {
         <div className={styles.navLinks}>
           <button className={mobileContent === "home" ? styles.active : ""} onClick={() => handleNavButtonClick("home")}>Home</button>
           <button className={mobileContent === "calendar" ? styles.active : ""} onClick={() => handleNavButtonClick("calendar")}>Calendar</button>
-          <button className={mobileContent === "crew" ? styles.active : ""} onClick={() => handleNavButtonClick("crew")}>Crew</button>
+          <button className={mobileContent === "requestCoverage" ? styles.active : ""} onClick={() => handleNavButtonClick("requestCoverage")}>Request coverage</button>
+          <button className={mobileContent === "offerCoverage" ? styles.active : ""} onClick={() => handleNavButtonClick("offerCoverage")}>Offer coverage</button>
           <button className={mobileContent === "messages" ? styles.active : ""} onClick={() => handleNavButtonClick("messages")}>
             Messages {unreadCount > 0 && <span className={styles.navBadge}>{unreadCount}</span>}
           </button>
@@ -74,8 +77,10 @@ export default function Home () {
         {mobileContent === "home" && (
           <MainPageComponent onNavigate={handleNavButtonClick} />
         )}
-        {mobileContent === "calendar" && <CalendarComponent />}
+        {mobileContent === "calendar" && <CalendarComponent />} 
         {mobileContent === "crew" && <CrewComponent />}
+        {mobileContent === "requestCoverage" && <CoverageRequestComponent onNavigate={handleNavButtonClick} />}
+        {mobileContent === "offerCoverage" && <OfferCoverageComponent onNavigate={handleNavButtonClick} />}
         {mobileContent === "messages" && <MessagesComponent />}
         {mobileContent === "profile" && <ProfileComponent />}
         {mobileContent === "profileCreation" && <ProfileCreationComponent />}
