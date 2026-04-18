@@ -36,6 +36,19 @@
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 8px;
   transition: border-color 0.3s ease;
+
+  svg {
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  svg:hover {
+    color: var(--accent-hover);
+    transform: scale(1.2);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+  }
 }
 
 .postName {

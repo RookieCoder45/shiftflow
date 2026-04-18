@@ -101,13 +101,7 @@ export default function Home () {
           <span className={styles.tabIcon}>📅</span>
           <span className={styles.tabLabel}>Calendar</span>
         </button>
-        <button 
-          className={mobileContent === "crew" ? styles.activeTab : ""} 
-          onClick={() => handleNavButtonClick("crew")}
-        >
-          <span className={styles.tabIcon}>👥</span>
-          <span className={styles.tabLabel}>Crew</span>
-        </button>
+      
         <button 
           className={mobileContent === "messages" ? styles.activeTab : ""} 
           onClick={() => handleNavButtonClick("messages")}
