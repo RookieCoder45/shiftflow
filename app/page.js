@@ -1,66 +1,128 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client"
 
-export default function Home() {
+import styles from "./page.module.css"
+import { useState, useEffect } from "react"
+import { useTheme } from "./context/ThemeContext"
+import MainPageComponent from "./components/MainPageComponent/MainPageComponent"
+import CalendarComponent from "./components/CalendarComponent/CalendarComponent"
+import ProfileComponent from "./components/ProfileComponent/ProfileComponent"
+import ProfileCreationComponent from "./components/ProfileCreationComponent/ProfileCreationComponent" 
+import CrewComponent from "./components/CrewComponent/CrewComponent"
+import { useAuth } from "./context/AuthContext"
+import { useData } from "./context/DataContext"
+import MessagesComponent from "./components/MessagesComponent/MessagesComponent"
+
+export default function Home () {
+  const [mobileContent, setMobileContent] = useState("home")
+  const { theme, toggleTheme } = useTheme();
+  const { user, loading: authLoading } = useAuth()
+  const { unreadCount } = useData()
+
+  useEffect(() => {
+    const handleNavigation = (e) => {
+      setMobileContent(e.detail);
+    };
+
+    window.addEventListener('navigate', handleNavigation);
+    return () => window.removeEventListener('navigate', handleNavigation);
+  }, []);
+
+  function handleNavButtonClick(section) {
+    setMobileContent(section)
+  }
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.js file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className={styles.app}>
+      <nav className={`${styles.navbar} glass animate-fade-in`}>
+        <div className={styles.logo}>
+          <span className={styles.logoIcon}>⚡</span>
+          <span className={styles.logoText}>Shift<span>Flow</span></span>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Desktop Navigation Links */}
+        <div className={styles.navLinks}>
+          <button className={mobileContent === "home" ? styles.active : ""} onClick={() => handleNavButtonClick("home")}>Home</button>
+          <button className={mobileContent === "calendar" ? styles.active : ""} onClick={() => handleNavButtonClick("calendar")}>Calendar</button>
+          <button className={mobileContent === "crew" ? styles.active : ""} onClick={() => handleNavButtonClick("crew")}>Crew</button>
+          <button className={mobileContent === "messages" ? styles.active : ""} onClick={() => handleNavButtonClick("messages")}>
+            Messages {unreadCount > 0 && <span className={styles.navBadge}>{unreadCount}</span>}
+          </button>
+          <button className={mobileContent === "profile" ? styles.active : ""} onClick={() => handleNavButtonClick("profile")}>
+            {user ? "Profile" : "Sign In"}
+          </button>
         </div>
+        
+        <div className={styles.navActions}>
+          <button 
+            className={styles.themeToggle} 
+            onClick={toggleTheme}
+            aria-label="Toggle Theme"
+          >
+            <span className={styles.toggleIcon}>
+              {theme === 'light' ? '🌙' : '☀️'}
+            </span>
+          </button>
+          {user && (
+            <div className={styles.userBadge} onClick={() => handleNavButtonClick("profile")}>
+              {user.email.charAt(0).toUpperCase()}
+            </div>
+          )}
+        </div>
+      </nav>
+
+      <main className={`${styles.mainContent} animate-fade-in`}>
+        {mobileContent === "home" && (
+          <MainPageComponent onNavigate={handleNavButtonClick} />
+        )}
+        {mobileContent === "calendar" && <CalendarComponent />}
+        {mobileContent === "crew" && <CrewComponent />}
+        {mobileContent === "messages" && <MessagesComponent />}
+        {mobileContent === "profile" && <ProfileComponent />}
+        {mobileContent === "profileCreation" && <ProfileCreationComponent />}
       </main>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <div className={`${styles.mobileBottomNav} glass`}>
+        <button 
+          className={mobileContent === "home" ? styles.activeTab : ""} 
+          onClick={() => handleNavButtonClick("home")}
+        >
+          <span className={styles.tabIcon}>🏠</span>
+          <span className={styles.tabLabel}>Home</span>
+        </button>
+        <button 
+          className={mobileContent === "calendar" ? styles.activeTab : ""} 
+          onClick={() => handleNavButtonClick("calendar")}
+        >
+          <span className={styles.tabIcon}>📅</span>
+          <span className={styles.tabLabel}>Calendar</span>
+        </button>
+        <button 
+          className={mobileContent === "crew" ? styles.activeTab : ""} 
+          onClick={() => handleNavButtonClick("crew")}
+        >
+          <span className={styles.tabIcon}>👥</span>
+          <span className={styles.tabLabel}>Crew</span>
+        </button>
+        <button 
+          className={mobileContent === "messages" ? styles.activeTab : ""} 
+          onClick={() => handleNavButtonClick("messages")}
+        >
+          <div className={styles.iconWrapper}>
+            <span className={styles.tabIcon}>💬</span>
+            {unreadCount > 0 && <span className={styles.mobileBadge}>{unreadCount}</span>}
+          </div>
+          <span className={styles.tabLabel}>Inbox</span>
+        </button>
+        <button 
+          className={mobileContent === "profile" ? styles.activeTab : ""} 
+          onClick={() => handleNavButtonClick("profile")}
+        >
+          <span className={styles.tabIcon}>👤</span>
+          <span className={styles.tabLabel}>{user ? "Profile" : "Sign In"}</span>
+        </button>
+      </div>
+     
     </div>
-  );
+  )
 }
