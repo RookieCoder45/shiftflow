@@ -45,8 +45,7 @@ export default function Home () {
         <div className={styles.navLinks}>
           <button className={mobileContent === "home" ? styles.active : ""} onClick={() => handleNavButtonClick("home")}>Home</button>
           <button className={mobileContent === "calendar" ? styles.active : ""} onClick={() => handleNavButtonClick("calendar")}>Calendar</button>
-          <button className={mobileContent === "requestCoverage" ? styles.active : ""} onClick={() => handleNavButtonClick("requestCoverage")}>Request coverage</button>
-          <button className={mobileContent === "offerCoverage" ? styles.active : ""} onClick={() => handleNavButtonClick("offerCoverage")}>Offer coverage</button>
+          
           <button className={mobileContent === "messages" ? styles.active : ""} onClick={() => handleNavButtonClick("messages")}>
             Messages {unreadCount > 0 && <span className={styles.navBadge}>{unreadCount}</span>}
           </button>

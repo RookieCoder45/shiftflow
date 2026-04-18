@@ -8,7 +8,7 @@ import {useData} from '@/app/context/DataContext'
 import CalendarManagement from './CalendarManagement'
 
 export default function CoverageRequestComponent({onNavigate}) {
-    const { user } = useAuth()
+    const { user, loading: authLoading } = useAuth()
     const { currentUser, updateProfileDates } = useData()
     const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -26,12 +26,12 @@ export default function CoverageRequestComponent({onNavigate}) {
     })
 
     useEffect(() => {
-        if (!user || !currentUser) {
+        if (!authLoading && !user) {
             onNavigate('profile')
         }
-    }, [user, currentUser])
+    }, [user, authLoading])
 
-    if (!user || !currentUser) return null
+    if (authLoading || !user || !currentUser) return null
 
 
 

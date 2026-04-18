@@ -3,32 +3,44 @@ import styles from './CoverageRequest.module.css'
 import ReturnHomeComponent from './ReturnHomeComponent'
 import CalendarManagement from './CalendarManagement'
 import { useData } from '@/app/context/DataContext'
+import { useAuth } from '@/app/context/AuthContext'
 
 export default function OfferCoverageComponent({onNavigate}) {
     const { data, currentUser, sendMessage, user, updateProfileDates } = useData()
+    const { loading: authLoading } = useAuth()
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    useEffect(() => {
-        if (!user || !currentUser) {
-            onNavigate('profile')
-        }
-    }, [user, currentUser])
-
-    if (!user || !currentUser) return null
-
-     const [offerCoverage, setOfferCoverage] = useState({
-        userLoggedIn: user,
+    // ALL hooks MUST be above any conditional return
+    const [offerCoverage, setOfferCoverage] = useState({
+        userLoggedIn: null,
         sliderIndex: 0,
-        shift: currentUser.shift,
-        user_id: currentUser.id,
-        first_name: currentUser.first_name,
-        last_name: currentUser.last_name,
-        main_equipment: currentUser.main_equipment,
+        shift: "",
+        user_id: "",
+        first_name: "",
+        last_name: "",
+        main_equipment: "",
         available_to_work_dates: [],
         need_coverage_dates: [],
         typeOfMutuals: "",
         cashAmount: "",
     })
+
+    // Populate state once currentUser loads
+    useEffect(() => {
+        if (currentUser) {
+            setOfferCoverage(prev => ({
+                ...prev,
+                userLoggedIn: user,
+                shift: currentUser.shift,
+                user_id: currentUser.id,
+                first_name: currentUser.first_name,
+                last_name: currentUser.last_name,
+                main_equipment: currentUser.main_equipment,
+            }))
+        }
+    }, [currentUser, user])
+
+
 
     const handleSubmit = async () => {
         setIsSubmitting(true)

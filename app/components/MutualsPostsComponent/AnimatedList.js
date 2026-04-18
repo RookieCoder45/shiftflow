@@ -42,7 +42,7 @@ const AnimatedList = ({
   onItemSelect,
   showGradients = true,
   enableArrowNavigation = true,
-  className = '',
+  className = 'desktop',
   itemClassName = '',
   displayScrollbar = true,
   initialSelectedIndex = -1

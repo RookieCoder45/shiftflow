@@ -16,7 +16,7 @@
   justify-content: center;
   text-align: center;
 
-  
+
   position: relative;
 }
 
@@ -168,7 +168,7 @@
   }
 }
 
-.requestCoverageBtn:hover,  
+.requestCoverageBtn:hover,
 .offerCoverageBtn:hover {
   background: var(--accent);
   color: white;
@@ -189,8 +189,15 @@
 
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 768px) {
@@ -199,9 +206,12 @@
     flex-direction: column;
     width: 100%;
   }
-  .primaryBtn, .secondaryBtn {
+
+  .primaryBtn,
+  .secondaryBtn {
     width: 100%;
   }
+
   .profilesSection {
     padding: 1.5rem;
   }

@@ -8,13 +8,6 @@ import MutualPosts from "../MutualsPostsComponent/MutualPosts"
 export default function MainPageComponent({ onNavigate }) {
   const { currentUser } = useData()
 
-  const handleGetStarted = () => {
-    if (currentUser) {
-      onNavigate("crew")
-    } else {
-      onNavigate("profileCreation")
-    }
-  }
 
   return (
     <div className={styles.container}>
@@ -26,11 +19,11 @@ export default function MainPageComponent({ onNavigate }) {
           <button className={styles.offerCoverageBtn} onClick={() => onNavigate("offerCoverage")}>Offer coverage</button>
         </div>
         <MutualPosts />
-      
-        
+
+
       </header>
-      
-      
+
+
     </div>
   )
 }
