@@ -4,11 +4,14 @@ import ReturnHomeComponent from './ReturnHomeComponent'
 import CalendarManagement from './CalendarManagement'
 import { useData } from '@/app/context/DataContext'
 import { useAuth } from '@/app/context/AuthContext'
+import ProfileComponent from '../ProfileComponent/ProfileComponent'
 
 export default function OfferCoverageComponent({onNavigate}) {
     const { data, currentUser, sendMessage, user, updateProfileDates } = useData()
     const { loading: authLoading } = useAuth()
     const [isSubmitting, setIsSubmitting] = useState(false)
+
+    
 
     // ALL hooks MUST be above any conditional return
     const [offerCoverage, setOfferCoverage] = useState({
@@ -40,7 +43,7 @@ export default function OfferCoverageComponent({onNavigate}) {
         }
     }, [currentUser, user])
 
-
+   
 
     const handleSubmit = async () => {
         setIsSubmitting(true)
