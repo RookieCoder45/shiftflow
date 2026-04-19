@@ -2,6 +2,8 @@ import styles from "./MutualPosts.module.css";
 import { useData } from "../../context/DataContext";
 import AnimatedList from "./AnimatedList";
 import { useState } from "react";
+import { fa, faker } from "@faker-js/faker";
+
 
 export default function MutualPosts() {
   const { data } = useData();
@@ -21,6 +23,58 @@ export default function MutualPosts() {
     "Drainage",
   ];
 
+
+function randomlyGenerateDate() {
+  const bool = Math.random() < 0.5;
+
+  if (bool) {
+    return faker.date.past().toISOString().split("T")[0];
+  } else {
+    return null;
+  }
+}
+
+  const fakePosts = [
+    ...Array.from({ length: 100 }, () => ({
+      id: faker.string.uuid(),
+      first_name: faker.person.firstName(),
+      last_name: faker.person.lastName(),
+      shift: faker.helpers.arrayElement(["I", "J", "K", "L"]),
+      main_equipment: faker.helpers.arrayElement([
+        "Truck",
+    "Grader",
+    "Bulldozer",
+    "Tiger",
+    "Excavator",
+    "Shovel",
+    "Utility",
+    "Drainage",
+      ]),
+      need_coverage_cash_dates: randomlyGenerateDate()
+  ? [randomlyGenerateDate()]
+  : [],
+      need_coverage_payback_dates:randomlyGenerateDate()
+  ? [randomlyGenerateDate()]
+  : [],
+    })),
+    {
+      id: 1,
+      first_name: "John Doe",
+      shift: "I",
+      main_equipment: "Truck",
+      cash: true,
+      payback: false,
+    },
+    {
+      id: 2,
+      name: "Jane Doe",
+      shift: "J",
+      main_equipment: "Grader",
+      cash: true,
+      payback: false,
+    },
+  ];
+
   if (!data) {
     return <div className={styles.container}>Loading...</div>;
   }
@@ -38,7 +92,8 @@ export default function MutualPosts() {
   };
 
   // ✅ FILTER FIRST
-  const filteredPosts = data
+  const filteredPosts = [
+    ...data, ...fakePosts]
     .filter((item) => {
       return (
         (!filterByShift || item.shift === filterByShift) &&

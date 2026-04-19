@@ -3,8 +3,9 @@
 import { useState } from "react"
 import { useAuth } from "../../context/AuthContext"
 import styles from "./auth.module.css"
+import ReturnHomeComponent from "../MutualsPostsComponent/ReturnHomeComponent"
 
-export default function AuthComponent() {
+export default function AuthComponent({onNavigate}) {
   const [mode, setMode] = useState("login") // "login" | "register"
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -37,6 +38,7 @@ export default function AuthComponent() {
 
   return (
     <div className={styles.authWrapper}>
+      
       <div className={styles.authCard}>
         <div className={styles.header}>
           <div className={styles.logoCircle}>⚡</div>

@@ -5,6 +5,7 @@ import { useData } from "../../context/DataContext"
 import MutualPosts from "../MutualsPostsComponent/MutualPosts"
 
 
+
 export default function MainPageComponent({ onNavigate }) {
   const { currentUser } = useData()
 

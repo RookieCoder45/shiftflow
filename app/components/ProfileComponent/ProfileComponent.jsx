@@ -7,6 +7,7 @@ import AuthComponent from "../AuthComponent/AuthComponent"
 import { useState, useEffect } from "react"
 import { getShiftForDate, getShiftIcon } from "../../lib/shiftUtils"
 
+
 export default function ProfileComponent() {
   const { user, loading: authLoading, signOut } = useAuth()
   const { currentUser, updateShift, updateProfileDates, setActiveMatchContext, loading: dataLoading } = useData()
