@@ -3,6 +3,7 @@ import { motion, useInView } from 'motion/react';
 import './AnimatedList.css';
 
 
+
 const AnimatedItem = ({ children, delay = 0, index, onMouseEnter, onClick }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { amount: 0.5, triggerOnce: false });
@@ -46,7 +47,8 @@ const AnimatedList = ({
   className = 'desktop',
   itemClassName = '',
   displayScrollbar = true,
-  initialSelectedIndex = -1
+  initialSelectedIndex = -1,
+  userId
 }) => {
   const listRef = useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(initialSelectedIndex);
@@ -126,6 +128,7 @@ const AnimatedList = ({
     <div className={`scroll-list-container ${className}`}>
       <div ref={listRef} className={`scroll-list ${!displayScrollbar ? 'no-scrollbar' : ''}`} onScroll={handleScroll}>
         {items.map((item, index) => (
+          
           <AnimatedItem
             key={index}
             delay={0.1}
@@ -137,6 +140,7 @@ const AnimatedList = ({
               {typeof item === 'string' ? <p className="item-text">{item}</p> : item}
             </div>
           </AnimatedItem>
+          
         ))}
       </div>
       {showGradients && (

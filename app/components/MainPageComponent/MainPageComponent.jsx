@@ -12,7 +12,7 @@ export default function MainPageComponent({ onNavigate }) {
   return (
     <div className={styles.container}>
       <header className={styles.heroSection}>
-        <div className={styles.heroBadge}>✨ Next-Gen Scheduling</div>
+       
         <h1 className={styles.heroTitle}>Premium <span>ShiftFlow</span> Management</h1>
         <div className={styles.ctaGroup}>
           <button className={styles.requestCoverageBtn} onClick={() => onNavigate("requestCoverage")}>Request coverage</button>

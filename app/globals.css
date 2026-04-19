@@ -26,6 +26,8 @@
   --brand-glow: 0 0 20px rgba(99, 102, 241, 0.3);
 
   --shadow-color-hover: rgba(218, 219, 226, 0.904);
+
+  --filter-icon-color: rgb(10, 10, 10);
 }
 
 [data-theme='dark'] {
@@ -46,6 +48,8 @@
 
   --gradient-background: radial-gradient(circle at top right, #0f172a 0%, #020617 100%);
    --shadow-color-hover: rgba(181, 247, 247, 0.904);
+
+   --filter-icon-color: aliceblue;
 }
 
 * {
