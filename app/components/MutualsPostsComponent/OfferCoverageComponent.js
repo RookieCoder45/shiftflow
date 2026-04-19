@@ -4,7 +4,7 @@ import ReturnHomeComponent from './ReturnHomeComponent'
 import CalendarManagement from './CalendarManagement'
 import { useData } from '@/app/context/DataContext'
 import { useAuth } from '@/app/context/AuthContext'
-import ProfileComponent from '../ProfileComponent/ProfileComponent'
+
 
 export default function OfferCoverageComponent({onNavigate}) {
     const { data, currentUser, sendMessage, user, updateProfileDates } = useData()
@@ -42,6 +42,15 @@ export default function OfferCoverageComponent({onNavigate}) {
             }))
         }
     }, [currentUser, user])
+
+
+    useEffect(() => {
+        if (!user) {
+            onNavigate('profile')
+        }
+    }, [user, authLoading])
+
+    if (authLoading || !user || !currentUser) return null
 
    
 
