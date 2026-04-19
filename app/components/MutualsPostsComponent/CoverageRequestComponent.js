@@ -1,4 +1,4 @@
-
+"use client"
 
 import styles from './CoverageRequest.module.css'
 import ReturnHomeComponent from './ReturnHomeComponent'
@@ -7,9 +7,11 @@ import { useAuth } from '@/app/context/AuthContext'
 import {useData} from '@/app/context/DataContext'
 import CalendarManagement from './CalendarManagement'
 
+
 export default function CoverageRequestComponent({onNavigate}) {
-    const { user, loading: authLoading } = useAuth()
     const { currentUser, updateProfileDates } = useData()
+    const { user, loading: authLoading } = useAuth()
+    
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const [coverageRequest, setCoverageRequest] = useState({

@@ -1,19 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import styles from "./CoverageRequest.module.css";
 import ReturnHomeComponent from "./ReturnHomeComponent";
-import CalendarManagement from "./CalendarManagement";
-import { useData } from "@/app/context/DataContext";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/app/context/AuthContext";
+import { useData } from "@/app/context/DataContext";
+import CalendarManagement from "./CalendarManagement";
+
+
 
 export default function OfferCoverageComponent({ onNavigate }) {
   const { currentUser, updateProfileDates } = useData();
-  const { loading: authLoading } = useAuth();
+  const { user,loading: authLoading } = useAuth();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [offerCoverage, setOfferCoverage] = useState({
+    userLoggedIn: null,
     sliderIndex: 0,
     shift: "",
     user_id: "",
@@ -21,10 +24,22 @@ export default function OfferCoverageComponent({ onNavigate }) {
     last_name: "",
     main_equipment: "",
     available_to_work_dates: [],
+    need_coverage_dates: [],
     typeOfMutuals: "",
     cashAmount: "",
   });
 
+
+  useEffect(() => {
+    console.log("user", user, "currentUser", currentUser, "authLoading", authLoading);
+        if (!authLoading && !user) {
+            onNavigate('profile')
+        }
+    }, [user, authLoading])
+
+
+
+    if (!authLoading || !user || !currentUser) return null
   // ✅ Populate user data once loaded
   useEffect(() => {
     if (!currentUser) return;
