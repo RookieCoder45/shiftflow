@@ -3,12 +3,13 @@ import { useData } from "../../context/DataContext";
 import AnimatedList from "./AnimatedList";
 import { useState } from "react";
 import { fa, faker } from "@faker-js/faker";
+import { s } from "motion/react-client";
 
 
 export default function MutualPosts() {
   const { data } = useData();
   const [filterIsClicked, setFilterIsClicked] = useState(false);
-
+const[showDetailedCard, setShowDetailedCard] = useState(null)
   const [filterByShift, setFilterByShift] = useState("");
   const [filterByEquipment, setFilterByEquipment] = useState("");
   const shifts = ["I", "J", "K", "L"];
@@ -34,46 +35,31 @@ function randomlyGenerateDate() {
   }
 }
 
-  const fakePosts = [
-    ...Array.from({ length: 100 }, () => ({
+ const [fakePosts] = useState(() =>
+  Array.from({ length: 100 }, () => {
+    const cashDate = randomlyGenerateDate();
+    const paybackDate = randomlyGenerateDate();
+
+    return {
       id: faker.string.uuid(),
       first_name: faker.person.firstName(),
       last_name: faker.person.lastName(),
       shift: faker.helpers.arrayElement(["I", "J", "K", "L"]),
       main_equipment: faker.helpers.arrayElement([
         "Truck",
-    "Grader",
-    "Bulldozer",
-    "Tiger",
-    "Excavator",
-    "Shovel",
-    "Utility",
-    "Drainage",
+        "Grader",
+        "Bulldozer",
+        "Tiger",
+        "Excavator",
+        "Shovel",
+        "Utility",
+        "Drainage",
       ]),
-      need_coverage_cash_dates: randomlyGenerateDate()
-  ? [randomlyGenerateDate()]
-  : [],
-      need_coverage_payback_dates:randomlyGenerateDate()
-  ? [randomlyGenerateDate()]
-  : [],
-    })),
-    {
-      id: 1,
-      first_name: "John Doe",
-      shift: "I",
-      main_equipment: "Truck",
-      cash: true,
-      payback: false,
-    },
-    {
-      id: 2,
-      name: "Jane Doe",
-      shift: "J",
-      main_equipment: "Grader",
-      cash: true,
-      payback: false,
-    },
-  ];
+      need_coverage_cash_dates: cashDate ? [cashDate] : [],
+      need_coverage_payback_dates: paybackDate ? [paybackDate] : [],
+    };
+  })
+);
 
   if (!data) {
     return <div className={styles.container}>Loading...</div>;
@@ -91,6 +77,22 @@ function randomlyGenerateDate() {
     }
   };
 
+  
+  const showCard = (item) => {
+    return (
+      <div className={styles.card} key={item.id} style={{zIndex:"1000"}}>
+        <div className={styles.cardHeader}>
+          <h2>{item.first_name}<br/> {item.last_name}</h2>
+        </div>
+        <div className={styles.cardBody}>
+          <p>Shift: {item.shift}</p>
+          <p>Equipment: {item.main_equipment}</p>
+          
+        </div>
+      </div>
+    );
+  }
+
   // ✅ FILTER FIRST
   const filteredPosts = [
     ...data, ...fakePosts]
@@ -105,7 +107,7 @@ function randomlyGenerateDate() {
       const hasPayback = item.need_coverage_payback_dates?.length > 0;
 
       return (
-        <div className={styles.postContent} key={item.id}>
+        <div className={styles.postContent} key={item.id} onClick={() => setShowDetailedCard(item)}>
           {" "}
           <div className={styles.postHeader}>
             {" "}
@@ -200,6 +202,25 @@ function randomlyGenerateDate() {
           </svg>
         </div>
       )}
+      {showDetailedCard && (
+  <div className={styles.card}>
+    <svg onClick={() => setShowDetailedCard(null)}
+     xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 20 20"><title xmlns="">close-outline</title><path fill="currentColor" d="M2.93 17.07A10 10 0 1 1 17.07 2.93A10 10 0 0 1 2.93 17.07m1.41-1.41A8 8 0 1 0 15.66 4.34A8 8 0 0 0 4.34 15.66m9.9-8.49L11.41 10l2.83 2.83l-1.41 1.41L10 11.41l-2.83 2.83l-1.41-1.41L8.59 10L5.76 7.17l1.41-1.41L10 8.59l2.83-2.83z"/></svg>
+    <h2>
+      {showDetailedCard.first_name} {showDetailedCard.last_name}
+    </h2>
+    <p>Shift: {showDetailedCard.shift}</p>
+    <p>Equipment: {showDetailedCard.main_equipment}</p>
+    <br/>
+    <hr/>
+    <br/>
+    <p>Cash Dates: {showDetailedCard.need_coverage_cash_dates?.join(", ")}</p>
+    <br/>
+    <hr/>
+    <br/>
+    <p>Payback Dates: {showDetailedCard.need_coverage_payback_dates?.join(", ")}</p>
+  </div>
+)}
       {filterIsClicked && (
         <div className={`${styles.filterOptions} `}>
           {shifts.map((shift, index) => (
