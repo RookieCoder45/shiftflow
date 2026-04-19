@@ -18,6 +18,7 @@ export default function MainPageComponent({ onNavigate }) {
           <button className={styles.requestCoverageBtn} onClick={() => onNavigate("requestCoverage")}>Request coverage</button>
           <button className={styles.offerCoverageBtn} onClick={() => onNavigate("offerCoverage")}>Offer coverage</button>
         </div>
+        
         <MutualPosts />
 
 
