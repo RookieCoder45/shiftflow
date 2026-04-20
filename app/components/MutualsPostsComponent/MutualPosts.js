@@ -1,9 +1,9 @@
 import styles from "./MutualPosts.module.css";
 import { useData } from "../../context/DataContext";
 import AnimatedList from "./AnimatedList";
-import { useState } from "react";
-import { fa, faker } from "@faker-js/faker";
-import { s } from "motion/react-client";
+import { useState, useEffect } from "react";
+import {faker } from "@faker-js/faker";
+import { motion } from "motion/react"
 
 
 export default function MutualPosts() {
@@ -12,6 +12,7 @@ export default function MutualPosts() {
 const[showDetailedCard, setShowDetailedCard] = useState(null)
   const [filterByShift, setFilterByShift] = useState("");
   const [filterByEquipment, setFilterByEquipment] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
   const shifts = ["I", "J", "K", "L"];
   const equipmentTypes = [
     "Truck",
@@ -23,6 +24,18 @@ const[showDetailedCard, setShowDetailedCard] = useState(null)
     "Utility",
     "Drainage",
   ];
+
+
+  useEffect(() => {
+  const checkMobile = () => {
+    setIsMobile(window.innerWidth < 768);
+  };
+
+  checkMobile();
+  window.addEventListener("resize", checkMobile);
+
+  return () => window.removeEventListener("resize", checkMobile);
+}, []);
 
 
 function randomlyGenerateDate() {
@@ -203,7 +216,9 @@ function randomlyGenerateDate() {
         </div>
       )}
       {showDetailedCard && (
-  <div className={styles.card}>
+  <motion.div 
+  
+  className={styles.card}>
     <svg onClick={() => setShowDetailedCard(null)}
      xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 20 20"><title xmlns="">close-outline</title><path fill="currentColor" d="M2.93 17.07A10 10 0 1 1 17.07 2.93A10 10 0 0 1 2.93 17.07m1.41-1.41A8 8 0 1 0 15.66 4.34A8 8 0 0 0 4.34 15.66m9.9-8.49L11.41 10l2.83 2.83l-1.41 1.41L10 11.41l-2.83 2.83l-1.41-1.41L8.59 10L5.76 7.17l1.41-1.41L10 8.59l2.83-2.83z"/></svg>
     <h2>
@@ -219,7 +234,7 @@ function randomlyGenerateDate() {
     <hr/>
     <br/>
     <p>Payback Dates: {showDetailedCard.need_coverage_payback_dates?.join(", ")}</p>
-  </div>
+  </motion.div>
 )}
       {filterIsClicked && (
         <div className={`${styles.filterOptions} `}>

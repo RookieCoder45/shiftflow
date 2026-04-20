@@ -8,7 +8,7 @@ import { useAuth } from '@/app/context/AuthContext'
 
 export default function OfferCoverageComponent({onNavigate}) {
     const { data, currentUser, sendMessage, user, updateProfileDates } = useData()
-    const { loading: authLoading } = useAuth()
+    const { loading: authLoading, session} = useAuth()
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     
@@ -44,13 +44,17 @@ export default function OfferCoverageComponent({onNavigate}) {
     }, [currentUser, user])
 
 
-    useEffect(() => {
-        if (!user) {
-            onNavigate('profile')
-        }
-    }, [user, authLoading])
+    if (!session) {
+        return <AuthComponent />;
+      }
 
-    if (authLoading || !user || !currentUser) return null
+    // useEffect(() => {
+    //     if (!user) {
+    //         onNavigate('profile')
+    //     }
+    // }, [user, authLoading])
+
+    // if (authLoading || !user || !currentUser) return null
 
    
 

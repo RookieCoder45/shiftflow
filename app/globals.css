@@ -28,6 +28,8 @@
   --shadow-color-hover: rgba(218, 219, 226, 0.904);
 
   --filter-icon-color: rgb(10, 10, 10);
+
+  --card-inset-shadow:  rgba(192, 195, 196, 0.836);
 }
 
 [data-theme='dark'] {
@@ -50,6 +52,7 @@
    --shadow-color-hover: rgba(181, 247, 247, 0.904);
 
    --filter-icon-color: aliceblue;
+   --card-inset-shadow:  rgba(80, 215, 224, 0.836);
 }
 
 * {
