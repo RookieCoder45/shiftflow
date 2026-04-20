@@ -116,6 +116,28 @@
   font-size: 0.95rem;
 }
 
+.headerActions {
+  border: 1px solid var(--border-color);
+  margin: 20px 0;
+  padding: 20px 10px;
+  display: flex;
+  gap: 5px;
+
+ 
+}
+
+.headerAction >  button {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: none;
+    background-color: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+  } 
+
+
+  
+
 .segmentedGroup {
   display: flex;
   background: var(--bg-secondary);

@@ -4,6 +4,7 @@ import ReturnHomeComponent from './ReturnHomeComponent'
 import CalendarManagement from './CalendarManagement'
 import { useData } from '@/app/context/DataContext'
 import { useAuth } from '@/app/context/AuthContext'
+import AuthComponent from '../AuthComponent/AuthComponent'
 
 
 export default function OfferCoverageComponent({onNavigate}) {

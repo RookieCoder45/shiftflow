@@ -183,10 +183,13 @@ export default function ProfileComponent() {
             <span className={styles.badge}>{currentUser.main_equipment}</span>
             <span className={styles.statusDot}></span>
             <span className={styles.statusText}>Active Now</span>
-            <div className={styles.headerActions}>
-              <button onClick={signOut} className={`${styles.logoutBtn} ${styles.primaryBtn}`}>Sign Out</button>
-            </div>
+           
           </div>
+           <div className={styles.headerActions}>
+              <button onClick={signOut} className={`${styles.logoutBtn} ${styles.primaryBtn}`}>Sign Out</button>
+              <button >Edit Profile</button>
+              <button>Delete Account</button>
+            </div>
         </div>
 
       </section>
