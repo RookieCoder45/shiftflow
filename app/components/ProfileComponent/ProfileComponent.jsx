@@ -6,6 +6,10 @@ import { useAuth } from "../../context/AuthContext"
 import AuthComponent from "../AuthComponent/AuthComponent"
 import { useState, useEffect } from "react"
 import { getShiftForDate, getShiftIcon } from "../../lib/shiftUtils"
+import { useRouter } from "next/navigation";
+
+
+import { supabase } from "@/app/lib/supabaseClient"
 
 
 export default function ProfileComponent() {
@@ -14,10 +18,11 @@ export default function ProfileComponent() {
   const [isUpdating, setIsUpdating] = useState(false)
   const [newDate, setNewDate] = useState({ available: "", coverage: "" })
   const [localDates, setLocalDates] = useState({ available: [], coverage: [] })
-
+  const router = useRouter()
   // Calendar State
   const [currentViewDate, setCurrentViewDate] = useState(new Date())
   const [selectionMode, setSelectionMode] = useState('available') // 'available' | 'coverage'
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -162,6 +167,59 @@ export default function ProfileComponent() {
   }
 
 
+//  async function handleDelete(id) {
+//   const confirmDelete = confirm("Are you sure?");
+//   if (!confirmDelete) return;
+
+//   const { error } = await supabase
+//     .from("profiles")
+//     .delete()
+//     .eq("id", id);
+
+//   if (error) {
+//     console.error(error);
+//     return;
+//   }
+
+//   localStorage.removeItem("sb-whkszadqpadlauhhzqpb-auth-token");
+//   // redirect
+//   router.push("https://www.google.com");
+// }
+
+// async function handleDelete(id) {
+//   console.log("INPUT ID (from click):", id);
+
+//   console.log("AUTH USER ID:", user.id);
+
+//   const { data, error } = await supabase
+//     .from("profiles")
+//     .delete()
+//     .eq("id", id);
+
+//   console.log("RESULT:", data);
+//   console.log("ERROR:", error);
+// }
+
+
+async function removeUserLoginData(userId) {
+  const res = await fetch("/api/delete-account", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    console.error(data.error);
+    return;
+  }
+
+  localStorage.clear();
+  // redirect
+
+  router.push("https://www.google.com");
+}
 
 
 
@@ -186,12 +244,14 @@ export default function ProfileComponent() {
            
           </div>
            <div className={styles.headerActions}>
-              <button onClick={signOut} className={`${styles.logoutBtn} ${styles.primaryBtn}`}>Sign Out</button>
-              <button >Edit Profile</button>
-              <button>Delete Account</button>
+              
+              <button className={styles.editProfileBtn} >Edit Profile</button>
+              <button onClick={signOut} >Sign Out</button>
+              <button onClick={() => removeUserLoginData(currentUser.id)}>Delete Account</button>
             </div>
+           
         </div>
-
+   
       </section>
 
       <section className={styles.mainGrid}>

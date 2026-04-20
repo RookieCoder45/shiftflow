@@ -123,20 +123,40 @@
   display: flex;
   gap: 5px;
 
- 
+ button {
+   flex: 1;
+   padding: 0.6rem;
+   border-radius: 10px;
+   font-weight: 700;
+   color: var(--text-secondary);
+   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+ }
+
+ button:not(:last-child) {
+   border: 1px solid var(--border-color);
+ }
+
+ button:is(:last-child) {
+   background: rgb(238, 106, 83);
+   color: var(--text-primary);
+   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+ }
+  button:is(:last-child):hover {
+   transform: translateY(-2px);
+ }
+
+
+ button:not(:last-child):hover {
+   background: var(--bg-primary);
+   color: var(--accent);
+   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+   transform: translateY(-2px);
+   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+ }
 }
 
-.headerAction >  button {
-    padding: 6px 12px;
-    border-radius: 8px;
-    border: none;
-    background-color: transparent;
-    color: var(--text-primary);
-    cursor: pointer;
-  } 
 
 
-  
 
 .segmentedGroup {
   display: flex;
