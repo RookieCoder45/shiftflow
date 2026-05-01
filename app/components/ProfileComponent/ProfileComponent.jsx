@@ -14,8 +14,16 @@ import { supabase } from "@/app/lib/supabaseClient"
 
 export default function ProfileComponent() {
   const { user, loading: authLoading, signOut } = useAuth()
-  const { currentUser, updateShift, updateProfileDates, setActiveMatchContext, loading: dataLoading } = useData()
+  const { currentUser, updateShift, updateProfileDates, updateMultipleProfileFields, setActiveMatchContext, loading: dataLoading } = useData()
   const [isUpdating, setIsUpdating] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editFormData, setEditFormData] = useState({
+    first_name: "",
+    last_name: "",
+    shift: "",
+    main_equipment: "",
+    secondary_equipment: []
+  })
   const [newDate, setNewDate] = useState({ available: "", coverage: "" })
   const [localDates, setLocalDates] = useState({ available: [], coverage: [] })
   const router = useRouter()
@@ -76,6 +84,31 @@ export default function ProfileComponent() {
     await updateShift(currentUser.id, newShift)
     setIsUpdating(false)
   }
+
+  const startEditing = () => {
+    setEditFormData({
+      first_name: currentUser.first_name,
+      last_name: currentUser.last_name,
+      shift: currentUser.shift,
+      main_equipment: currentUser.main_equipment,
+      secondary_equipment: currentUser.secondary_equipment || []
+    })
+    setIsEditing(true)
+  }
+
+  const handleUpdateProfile = async () => {
+    setIsUpdating(true)
+    const { success } = await updateMultipleProfileFields(currentUser.id, editFormData)
+    if (success) {
+      setIsEditing(false)
+    }
+    setIsUpdating(false)
+  }
+
+  const equipmentOptions = [
+    "Truck", "Grader", "Bulldozer", "Tiger", "Loader", 
+    "Excavator", "Shovel", "Utility", "Drainage"
+  ];
 
   const handleAddLocal = (type) => {
     if (!newDate[type]) return
@@ -245,7 +278,7 @@ async function removeUserLoginData(userId) {
           </div>
            <div className={styles.headerActions}>
               
-              <button className={styles.editProfileBtn} >Edit Profile</button>
+              <button className={styles.editProfileBtn} onClick={startEditing}>Edit Profile</button>
               <button onClick={signOut} >Sign Out</button>
               <button onClick={() => removeUserLoginData(currentUser.id)}>Delete Account</button>
             </div>
@@ -395,6 +428,99 @@ async function removeUserLoginData(userId) {
           {isUpdating && <div className={styles.updatingOverlay}>Updating...</div>}
         </div>
       </section>
+
+      {/* Edit Profile Modal */}
+      {isEditing && (
+        <div className={styles.modalOverlay} onClick={() => setIsEditing(false)}>
+          <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>Edit Profile</h2>
+              <button className={styles.closeBtn} onClick={() => setIsEditing(false)}>×</button>
+            </div>
+            
+            <div className={styles.modalBody}>
+              <div className={styles.formGroup}>
+                <label>First Name</label>
+                <input 
+                  type="text" 
+                  value={editFormData.first_name}
+                  onChange={(e) => setEditFormData({...editFormData, first_name: e.target.value})}
+                  className={styles.modalInput}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Last Name</label>
+                <input 
+                  type="text" 
+                  value={editFormData.last_name}
+                  onChange={(e) => setEditFormData({...editFormData, last_name: e.target.value})}
+                  className={styles.modalInput}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Shift Rotation</label>
+                <select 
+                  value={editFormData.shift}
+                  onChange={(e) => setEditFormData({...editFormData, shift: e.target.value})}
+                  className={styles.modalSelect}
+                >
+                  <option value="I">Shift I</option>
+                  <option value="J">Shift J</option>
+                  <option value="K">Shift K</option>
+                  <option value="L">Shift L</option>
+                </select>
+              </div>
+              <div className={styles.formGroup}>
+                <label>Main Equipment</label>
+                <select 
+                  value={editFormData.main_equipment}
+                  onChange={(e) => setEditFormData({...editFormData, main_equipment: e.target.value})}
+                  className={styles.modalSelect}
+                >
+                  {equipmentOptions.map(eq => (
+                    <option key={eq} value={eq}>{eq}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className={styles.formGroup}>
+                <label>Secondary Skills</label>
+                <div className={styles.secondarySkillsGrid}>
+                  {equipmentOptions.filter(eq => eq !== editFormData.main_equipment).map(eq => {
+                    const isSelected = editFormData.secondary_equipment.includes(eq);
+                    return (
+                      <button 
+                        key={eq}
+                        className={`${styles.skillToggle} ${isSelected ? styles.skillActive : ""}`}
+                        onClick={() => {
+                          const current = editFormData.secondary_equipment;
+                          const next = isSelected 
+                            ? current.filter(item => item !== eq)
+                            : [...current, eq];
+                          setEditFormData({...editFormData, secondary_equipment: next});
+                        }}
+                      >
+                        {eq}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.modalFooter}>
+              <button className={styles.cancelBtn} onClick={() => setIsEditing(false)}>Cancel</button>
+              <button 
+                className={styles.saveProfileBtn} 
+                onClick={handleUpdateProfile}
+                disabled={isUpdating}
+              >
+                {isUpdating ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

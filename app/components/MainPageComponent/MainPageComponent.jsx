@@ -9,6 +9,8 @@ export default function MainPageComponent({onNavigate}) {
 
   const [filterName, setFilterName] = useState("");
   const [filterShift, setFilterShift] = useState("All");
+  const [filterType, setFilterType] = useState("All");
+  const [filterTargetShift, setFilterTargetShift] = useState("All");
   const [filterEquipment, setFilterEquipment] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [smartFilterEnabled, setSmartFilterEnabled] = useState(false);
@@ -22,15 +24,25 @@ export default function MainPageComponent({onNavigate}) {
 
     if (filterShift !== "All" && post.profiles?.shift !== filterShift) return false;
 
+    if (filterType !== "All") {
+      const title = post.title.toLowerCase();
+      if (filterType === "Requests" && !title.includes("request")) return false;
+      if (filterType === "Offers" && !title.includes("offer")) return false;
+    }
+
     const equipment = `${post.profiles?.main_equipment || ""} ${post.profiles?.secondary_equipment || ""}`.toLowerCase();
     if (filterEquipment && !equipment.includes(filterEquipment.toLowerCase())) return false;
 
-    // Parse dates
+    // Parse dates and targets
     const { dates, shiftType, targetShiftLetter } = parsePostContent(post.title, post.content);
     
+    // Normalize target shift from either direct field or content string
+    const actualTarget = targetShiftLetter || (shiftType && shiftType.toLowerCase().includes("shift") ? shiftType.split(" ")[0].toUpperCase() : "");
+
+    if (filterTargetShift !== "All" && actualTarget !== filterTargetShift) return false;
+
     if (filterDate && filterDate !== "All") {
       // Check if any date in the post includes the filterDate string
-      // e.g. "-05-"
       const matchesDate = dates.some(d => d.includes(filterDate));
       if (!matchesDate) return false;
     }
@@ -134,15 +146,35 @@ export default function MainPageComponent({onNavigate}) {
                   style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '0.9rem' }}
                 />
                 <select 
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value)}
+                  style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '0.9rem', fontWeight: 'bold' }}
+                >
+                  <option value="All">All Posts</option>
+                  <option value="Requests">Requests Only</option>
+                  <option value="Offers">Offers Only</option>
+                </select>
+                <select 
                   value={filterShift}
                   onChange={(e) => setFilterShift(e.target.value)}
                   style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '0.9rem' }}
                 >
-                  <option value="All">All Shifts</option>
-                  <option value="I">I Shift</option>
-                  <option value="J">J Shift</option>
-                  <option value="K">K Shift</option>
-                  <option value="L">L Shift</option>
+                  <option value="All">Author Shift: All</option>
+                  <option value="I">Author: I</option>
+                  <option value="J">Author: J</option>
+                  <option value="K">Author: K</option>
+                  <option value="L">Author: L</option>
+                </select>
+                <select 
+                  value={filterTargetShift}
+                  onChange={(e) => setFilterTargetShift(e.target.value)}
+                  style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '0.9rem', fontWeight: 'bold', borderLeft: '4px solid #10b981' }}
+                >
+                  <option value="All">Target Shift: All</option>
+                  <option value="I">Targeting: I</option>
+                  <option value="J">Targeting: J</option>
+                  <option value="K">Targeting: K</option>
+                  <option value="L">Targeting: L</option>
                 </select>
                 <select 
                   value={filterEquipment}

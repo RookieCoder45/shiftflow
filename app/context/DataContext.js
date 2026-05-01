@@ -183,8 +183,73 @@ export function DataProvider({ children }) {
     }
 
     if (updated && updated.length > 0) {
-      setData(prev => prev.map(p => p.id === userId ? updated[0] : p))
-      setCurrentUser(updated[0])
+      const oldProfile = currentUser;
+      const newProfile = updated[0];
+
+      setData(prev => prev.map(p => p.id === userId ? newProfile : p))
+      setCurrentUser(newProfile)
+
+      // Cascade changes to existing posts
+      if (oldProfile && (newProfile.shift !== oldProfile.shift || newProfile.main_equipment !== oldProfile.main_equipment)) {
+        
+        if (newProfile.shift !== oldProfile.shift) {
+          console.log("Shift changed! Deleting all user posts...");
+          await supabase
+            .from("posts")
+            .delete()
+            .eq("author_id", userId);
+          
+          // Refresh posts globally
+          const { data: refreshedPosts } = await supabase
+            .from("posts")
+            .select(`
+              *,
+              profiles:author_id (
+                first_name,
+                last_name,
+                shift,
+                main_equipment,
+                secondary_equipment
+              )
+            `)
+            .order('created_at', { ascending: false });
+          
+          if (refreshedPosts) setPosts(refreshedPosts);
+        } else if (newProfile.main_equipment !== oldProfile.main_equipment) {
+          console.log("Equipment changed! Updating user posts...");
+          
+          // Fetch user's posts
+          const { data: userPosts } = await supabase
+            .from("posts")
+            .select("id, content")
+            .eq("author_id", userId);
+
+          if (userPosts) {
+            for (const post of userPosts) {
+              // Standard equipment replacement logic if needed
+              // For now, we'll just ensure the global posts are refreshed to show new metadata
+            }
+            
+            // Refresh posts globally to show new metadata in joined profiles
+            const { data: refreshedPosts } = await supabase
+              .from("posts")
+              .select(`
+                *,
+                profiles:author_id (
+                  first_name,
+                  last_name,
+                  shift,
+                  main_equipment,
+                  secondary_equipment
+                )
+              `)
+              .order('created_at', { ascending: false });
+            
+            if (refreshedPosts) setPosts(refreshedPosts);
+          }
+        }
+      }
+
       return { success: true }
     }
     return { success: false }
