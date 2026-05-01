@@ -2,7 +2,8 @@
   position: relative;
   width: 100%;
   max-width: 1500px;
-  height: 1000px;
+  min-height: 400px;
+  height: auto;
   background: var(--glass-bg);
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
@@ -21,8 +22,9 @@
 
 @media (max-width: 768px) {
   .container {
-    height: 500px;
-    overflow: hidden;
+    height: auto;
+    min-height: 300px;
+    overflow: visible;
     
     
   }
@@ -348,3 +350,42 @@
       }
     }
   }
+}
+
+
+.editBtn, .deleteBtn, .msgBtn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.msgBtn {
+  background: var(--accent);
+  color: white;
+}
+
+.editBtn {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.deleteBtn {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.editBtn:hover, .deleteBtn:hover, .msgBtn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+.deleteBtn:hover {
+  background: #ef4444;
+  color: white;
+}

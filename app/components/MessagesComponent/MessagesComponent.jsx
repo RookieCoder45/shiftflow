@@ -5,7 +5,7 @@ import { useData } from "../../context/DataContext"
 import styles from "./messages.module.css"
 
 export default function MessagesComponent() {
-  const { inbox, markAsRead, currentUser, sendMessage, unreadCount, acceptCoverageRequest, acceptCoverageOffer } = useData()
+  const { inbox, markAsRead, deleteMessage, deleteThread, currentUser, sendMessage, unreadCount, acceptCoverageRequest, acceptCoverageOffer } = useData()
   const [selectedThreadUser, setSelectedThreadUser] = useState(null) // { id, name }
   const [replyContent, setReplyContent] = useState("")
   const [isSending, setIsSending] = useState(false)
@@ -13,23 +13,22 @@ export default function MessagesComponent() {
 
   // Group messages by conversation partner
   const threads = inbox.reduce((acc, msg) => {
-    const partnerId = msg.sender_id === currentUser.id ? msg.receiver_id : msg.sender_id
-    const partnerName = msg.sender_id === currentUser.id ? "Me" : msg.sender_name // We need a way to get the actual receiver name if it was us sending, but for now we have sender_name
+    const isMe = msg.sender_id === currentUser.id
+    const partnerId = isMe ? msg.receiver_id : msg.sender_id
+    const partnerName = isMe ? msg.receiver_name : msg.sender_name
     
-    // Fallback: If we sent it, we need to find who we sent it to in the profile data ideally, 
-    // but we'll use a placeholder or the first message's sender name if available.
-    // Enhanced hack: Use the name from the message where the partner was the sender.
     if (!acc[partnerId]) {
       acc[partnerId] = {
         partnerId,
-        partnerName: msg.sender_id === currentUser.id ? "Operator" : msg.sender_name,
+        partnerName: partnerName || "Operator",
         messages: [],
         unreadCount: 0
       }
     }
     
-    if (msg.sender_id !== currentUser.id && msg.sender_name !== "Operator") {
-      acc[partnerId].partnerName = msg.sender_name
+    // Always prefer a real name if we encounter one in the thread
+    if (partnerName && partnerName !== "Operator") {
+      acc[partnerId].partnerName = partnerName
     }
 
     acc[partnerId].messages.push(msg)
@@ -104,6 +103,23 @@ export default function MessagesComponent() {
     }
   }
 
+  const handleDeleteMessage = async (e, messageId) => {
+    e.stopPropagation()
+    if (window.confirm("Delete this message?")) {
+      await deleteMessage(messageId)
+    }
+  }
+
+  const handleDeleteThread = async (e, partnerId) => {
+    e.stopPropagation()
+    if (window.confirm("Delete the entire conversation? This will remove all messages for both users.")) {
+      const res = await deleteThread(partnerId)
+      if (res.success && selectedThreadUser?.partnerId === partnerId) {
+        setSelectedThreadUser(null)
+      }
+    }
+  }
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -138,9 +154,18 @@ export default function MessagesComponent() {
                   <div className={styles.threadMeta}>
                     <div className={styles.msgPreviewHeader}>
                       <span className={styles.senderName}>{thread.partnerName}</span>
-                      <span className={styles.msgTime}>
-                        {new Date(thread.messages[0].created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span className={styles.msgTime}>
+                          {new Date(thread.messages[0].created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                        </span>
+                        <button 
+                          className={styles.deleteThreadBtn}
+                          onClick={(e) => handleDeleteThread(e, thread.partnerId)}
+                          title="Delete Conversation"
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </div>
                     <p className={styles.contentPreview}>
                       {thread.messages[0].sender_id === currentUser.id ? "You: " : ""}{thread.messages[0].content}
@@ -187,9 +212,17 @@ export default function MessagesComponent() {
                         </div>
                       )}
                       <p>{msg.content}</p>
-                      <span className={styles.bubbleTime}>
-                        {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
+                      <div className={styles.bubbleFooter}>
+                        <span className={styles.bubbleTime}>
+                          {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                        <button 
+                          className={styles.deleteBubbleBtn} 
+                          onClick={(e) => handleDeleteMessage(e, msg.id)}
+                        >
+                          🗑️
+                        </button>
+                      </div>
                       
                       {msg.category === 'coverage_request' && msg.sender_id !== currentUser.id && !msg.read && (
                         <div className={styles.bubbleActions}>

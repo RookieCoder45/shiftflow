@@ -270,13 +270,23 @@ export function DataProvider({ children }) {
 
       const { data: messages, error } = await supabase
         .from("messages")
-        .select("*")
+        .select(`
+          *,
+          sender:sender_id ( first_name, last_name ),
+          receiver:receiver_id ( first_name, last_name )
+        `)
         .or(`receiver_id.eq.${currentUser.id},sender_id.eq.${currentUser.id}`)
         .order("created_at", { ascending: false })
 
       if (!error && messages) {
-        setInbox(messages)
-        setUnreadCount(messages.filter(m => !m.read && m.receiver_id === currentUser.id).length)
+        // Map names into the message objects for easier access in UI
+        const enhancedMessages = messages.map(msg => ({
+          ...msg,
+          sender_name: msg.sender ? `${msg.sender.first_name} ${msg.sender.last_name}` : msg.sender_name || "Operator",
+          receiver_name: msg.receiver ? `${msg.receiver.first_name} ${msg.receiver.last_name}` : "Operator"
+        }))
+        setInbox(enhancedMessages)
+        setUnreadCount(enhancedMessages.filter(m => !m.read && m.receiver_id === currentUser.id).length)
       }
     }
 
@@ -409,6 +419,78 @@ export function DataProvider({ children }) {
     }
   }
 
+  const deleteMessage = async (messageId) => {
+    const { error } = await supabase
+      .from("messages")
+      .delete()
+      .eq("id", messageId)
+
+    if (error) {
+      console.error("Error deleting message:", error)
+      return { success: false, error }
+    }
+
+    setInbox(prev => prev.filter(m => m.id !== messageId))
+    setUnreadCount(prev => prev - (inbox.find(m => m.id === messageId)?.read ? 0 : 1))
+    return { success: true }
+  }
+
+  const deleteThread = async (partnerId) => {
+    const { error } = await supabase
+      .from("messages")
+      .delete()
+      .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${partnerId}),and(sender_id.eq.${partnerId},receiver_id.eq.${currentUser.id})`)
+
+    if (error) {
+      console.error("Error deleting thread:", error)
+      return { success: false, error }
+    }
+
+    setInbox(prev => prev.filter(m => m.sender_id !== partnerId && m.receiver_id !== partnerId))
+    // Refetch unread count for accuracy
+    const { data: messages } = await supabase
+      .from("messages")
+      .select("id, read")
+      .eq("receiver_id", currentUser.id)
+      .eq("read", false)
+    
+    if (messages) {
+      setUnreadCount(messages.length)
+    }
+    
+    return { success: true }
+  }
+
+  const deletePost = async (postId) => {
+    const { error } = await supabase
+      .from("posts")
+      .delete()
+      .eq("id", postId)
+
+    if (error) {
+      console.error("Error deleting post:", error)
+      return { success: false, error }
+    }
+
+    setPosts(prev => prev.filter(p => p.id !== postId))
+    return { success: true }
+  }
+
+  const updatePost = async (postId, newContent) => {
+    const { error } = await supabase
+      .from("posts")
+      .update({ content: newContent })
+      .eq("id", postId)
+
+    if (error) {
+      console.error("Error updating post:", error)
+      return { success: false, error }
+    }
+
+    setPosts(prev => prev.map(p => p.id === postId ? { ...p, content: newContent } : p))
+    return { success: true }
+  }
+
   return (
     <DataContext.Provider value={{ 
       data, setData, 
@@ -416,7 +498,8 @@ export function DataProvider({ children }) {
       currentUser, setCurrentUser, 
       updateShift, createProfile, updateProfileDates, updateMultipleProfileFields,
       activeMatchContext, setActiveMatchContext,
-      inbox, sendMessage, markAsRead, unreadCount,
+      inbox, sendMessage, markAsRead, deleteMessage, deleteThread, unreadCount,
+      deletePost, updatePost,
       acceptCoverageRequest, acceptCoverageOffer,
       loading 
     }}>

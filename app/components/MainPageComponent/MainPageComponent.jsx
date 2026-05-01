@@ -11,6 +11,7 @@ export default function MainPageComponent({onNavigate}) {
   const [filterShift, setFilterShift] = useState("All");
   const [filterType, setFilterType] = useState("All");
   const [filterTargetShift, setFilterTargetShift] = useState("All");
+  const [filterPayment, setFilterPayment] = useState("All");
   const [filterEquipment, setFilterEquipment] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [smartFilterEnabled, setSmartFilterEnabled] = useState(false);
@@ -28,6 +29,13 @@ export default function MainPageComponent({onNavigate}) {
       const title = post.title.toLowerCase();
       if (filterType === "Requests" && !title.includes("request")) return false;
       if (filterType === "Offers" && !title.includes("offer")) return false;
+    }
+
+    if (filterPayment !== "All") {
+      const isCash = post.content.toLowerCase().includes("cash") || post.content.toLowerCase().includes("$");
+      const isPayback = post.content.toLowerCase().includes("pay back");
+      if (filterPayment === "Cash" && !isCash) return false;
+      if (filterPayment === "Pay Back" && !isPayback) return false;
     }
 
     const equipment = `${post.profiles?.main_equipment || ""} ${post.profiles?.secondary_equipment || ""}`.toLowerCase();
@@ -207,6 +215,15 @@ export default function MainPageComponent({onNavigate}) {
                   <option value="-10-">October</option>
                   <option value="-11-">November</option>
                   <option value="-12-">December</option>
+                </select>
+                <select 
+                  value={filterPayment}
+                  onChange={(e) => setFilterPayment(e.target.value)}
+                  style={{ padding: '8px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '0.9rem' }}
+                >
+                  <option value="All">All Payment Types</option>
+                  <option value="Cash">Cash Only 💵</option>
+                  <option value="Pay Back">Pay Back Only 🔄</option>
                 </select>
               </div>
 

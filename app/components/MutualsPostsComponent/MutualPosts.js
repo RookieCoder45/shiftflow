@@ -3,11 +3,24 @@ import AnimatedList from "./AnimatedList"
 import { useData } from "../../context/DataContext"
 
 export default function MutualPosts({list}) {
-  const { currentUser, sendMessage } = useData();
+  const { currentUser, sendMessage, deletePost, updatePost } = useData();
   const getTitleClass = (title) => {
     if (title === 'Coverage Request') return styles.requestName;
     if (title === 'Offer Coverage') return styles.offerName;
     return styles.postName;
+  }
+
+  const handleDeletePost = async (postId) => {
+    if (window.confirm("Are you sure you want to delete this post?")) {
+      await deletePost(postId)
+    }
+  }
+
+  const handleEditPost = async (post) => {
+    const newContent = window.prompt("Edit your post content:", post.content);
+    if (newContent && newContent !== post.content) {
+      await updatePost(post.id, newContent)
+    }
   }
 
   return (
@@ -16,7 +29,12 @@ export default function MutualPosts({list}) {
         items={list.map(post => (
           <div key={post.id} className={styles.postContent}>
             <div className={styles.postHeader}>
-              <p className={getTitleClass(post.title)}>{post.title}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <p className={getTitleClass(post.title)}>{post.title}</p>
+                { (post.content.toLowerCase().includes("cash") || post.content.toLowerCase().includes("$")) && (
+                  <span title="Cash Payment" style={{ fontSize: '1.2rem', filter: 'drop-shadow(0 0 5px rgba(16, 185, 129, 0.3))' }}>💵</span>
+                )}
+              </div>
               <p className={styles.postShift}>
                 {post.profiles ? `${post.profiles.first_name} ${post.profiles.last_name} (${post.profiles.shift || 'No Shift'})` : 'Unknown Author'}
               </p>
@@ -37,31 +55,41 @@ export default function MutualPosts({list}) {
                   </span>
                   
                   {currentUser && (
-                    <button 
-                      onClick={async () => {
-                        const msg = window.prompt(`Send a message to ${post.profiles?.first_name || 'the author'}:`);
-                        if (msg) {
-                          const res = await sendMessage(post.author_id, msg, "standard");
-                          if (res.success) {
-                            alert("Message sent successfully!");
-                          } else {
-                            alert("Failed to send message.");
-                          }
-                        }
-                      }}
-                      style={{
-                        background: 'var(--accent)',
-                        color: 'white',
-                        border: 'none',
-                        padding: '6px 12px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '0.8rem',
-                        fontWeight: 'bold'
-                      }}
-                    >
-                      Send Message
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      {post.author_id === currentUser.id ? (
+                        <>
+                          <button 
+                            onClick={() => handleEditPost(post)}
+                            className={styles.editBtn}
+                          >
+                            ✏️ Edit
+                          </button>
+                          <button 
+                            onClick={() => handleDeletePost(post.id)}
+                            className={styles.deleteBtn}
+                          >
+                            🗑️ Delete
+                          </button>
+                        </>
+                      ) : (
+                        <button 
+                          onClick={async () => {
+                            const msg = window.prompt(`Send a message to ${post.profiles?.first_name || 'the author'}:`);
+                            if (msg) {
+                              const res = await sendMessage(post.author_id, msg, "standard");
+                              if (res.success) {
+                                alert("Message sent successfully!");
+                              } else {
+                                alert("Failed to send message.");
+                              }
+                            }
+                          }}
+                          className={styles.msgBtn}
+                        >
+                          Send Message
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
