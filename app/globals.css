@@ -3,7 +3,7 @@
 :root {
   /* Premium Light Theme */
   --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
+  --bg-secondary: #e0e2e4;
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --accent: #38bdf8;      /* Deep Indigo */
@@ -35,7 +35,7 @@
 [data-theme='dark'] {
   /* Ultra-Premium Dark Theme / Neon */
   --bg-primary: #020617;   /* True Deep Slate / OLED-like */
-  --bg-secondary: #0f172a; /* Slate 900 */
+  --bg-secondary: #181f30; /* Slate 900 */
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --accent: #38bdf8;       /* Glowing Cyan/Sky */

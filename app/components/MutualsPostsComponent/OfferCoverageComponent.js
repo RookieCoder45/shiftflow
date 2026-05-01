@@ -8,7 +8,7 @@ import AuthComponent from '../AuthComponent/AuthComponent'
 
 
 export default function OfferCoverageComponent({onNavigate}) {
-    const { data, currentUser, sendMessage, user, updateProfileDates } = useData()
+    const { data, currentUser, sendMessage, user, updateProfileDates, createNewPost } = useData()
     const { loading: authLoading, session} = useAuth()
     const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -35,7 +35,7 @@ export default function OfferCoverageComponent({onNavigate}) {
             setOfferCoverage(prev => ({
                 ...prev,
                 userLoggedIn: user,
-                shift: currentUser.shift,
+                // Don't default shift
                 user_id: currentUser.id,
                 first_name: currentUser.first_name,
                 last_name: currentUser.last_name,
@@ -70,6 +70,12 @@ export default function OfferCoverageComponent({onNavigate}) {
             const mergedDates = Array.from(newDateSet).sort();
 
             await updateProfileDates(currentUser.id, columnToUpdate, mergedDates)
+
+            // Create a new post for this coverage offer
+            const title = "Offer Coverage"
+            const paymentText = offerCoverage.typeOfMutuals === 'Cash' && offerCoverage.cashAmount ? ` ($${offerCoverage.cashAmount})` : ""
+            const content = `Available to work on ${offerCoverage.available_to_work_dates.join(", ")} for ${offerCoverage.shift} shift. Payment: ${offerCoverage.typeOfMutuals}${paymentText}`
+            await createNewPost(title, content)
         }
         setIsSubmitting(false)
         alert("Coverage Offer Submitted! Dates saved to your profile.");
@@ -88,12 +94,42 @@ export default function OfferCoverageComponent({onNavigate}) {
                                 <h2>{currentUser.first_name} {currentUser.last_name}</h2>
                                 <p style={{color: 'var(--text-secondary)'}}>Your profile information</p>
                                 <div style={{textAlign: 'left', background: 'var(--bg-secondary)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color)', marginTop: '20px'}}>
-                                    <p style={{marginBottom: '10px'}}><strong>Shift:</strong> {currentUser.shift}</p>
+                                    <div style={{marginBottom: '15px', display: 'flex', flexDirection: 'column', gap: '8px'}}>
+                                        <label><strong>Offer Coverage To:</strong></label>
+                                        <div style={{display: 'flex', gap: '10px'}}>
+                                            {['I', 'J', 'K', 'L']
+                                                .filter(s => s !== currentUser.shift)
+                                                .map(s => (
+                                                <button 
+                                                    key={s}
+                                                    onClick={() => setOfferCoverage({...offerCoverage, shift: s})}
+                                                    style={{
+                                                        padding: '10px 20px', 
+                                                        borderRadius: '8px', 
+                                                        border: offerCoverage.shift === s ? '2px solid var(--accent)' : '1px solid var(--border-color)',
+                                                        background: offerCoverage.shift === s ? 'rgba(99, 102, 241, 0.2)' : 'var(--bg-primary)',
+                                                        color: 'var(--text-primary)',
+                                                        fontWeight: 'bold',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    {s} Shift
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
                                     <p><strong>Main Equipment:</strong> {currentUser.main_equipment}</p>
                                 </div>
                             </div>
                             <div className={styles.btnContainer}>
-                                <button className={styles.nextBtn} onClick={() => setOfferCoverage({...offerCoverage, sliderIndex: 1})}>Next</button>
+                                <button 
+                                    className={styles.nextBtn} 
+                                    onClick={() => setOfferCoverage({...offerCoverage, sliderIndex: 1})}
+                                    disabled={!offerCoverage.shift}
+                                    style={!offerCoverage.shift ? {opacity: 0.5, cursor: 'not-allowed'} : {}}
+                                >
+                                    Next
+                                </button>
                             </div>
                            </div>
                         )}
@@ -170,7 +206,7 @@ export default function OfferCoverageComponent({onNavigate}) {
                                     <h2>Confirm Offer Broadcast</h2>
                                     <p style={{color: 'var(--text-secondary)'}}>Review your offering details before submitting.</p>
                                     <div style={{textAlign: 'left', margin: '16px 0', border: '1px solid var(--border-color)', padding: '16px', borderRadius: '12px', background: 'var(--bg-secondary)'}}>
-                                        <p><strong>Shift:</strong> {offerCoverage.shift}</p>
+                                        <p><strong>Target Shift:</strong> {offerCoverage.shift} Shift</p>
                                         <p><strong>Equipment:</strong> {offerCoverage.main_equipment}</p>
                                         <p><strong>Dates:</strong> 
                                             <span style={{color: 'var(--accent)', marginLeft: '8px'}}>

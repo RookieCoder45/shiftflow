@@ -9,6 +9,7 @@ const DataContext = createContext()
 
 export function DataProvider({ children }) {
   const [data, setData] = useState(null)
+  const [posts, setPosts] = useState([])
   const [currentUser, setCurrentUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const { user } = useAuth()
@@ -27,6 +28,19 @@ export function DataProvider({ children }) {
       }
 
       setData(result)
+
+      // Fetch posts
+      const { data: postsData, error: postsError } = await supabase
+        .from("posts")
+        .select("*, profiles:author_id(first_name, last_name, shift, main_equipment, secondary_equipment)")
+        .order("created_at", { ascending: false })
+
+      if (postsError) {
+        console.error("Error fetching posts:", postsError)
+      } else {
+        setPosts(postsData || [])
+      }
+
       setLoading(false)
     }
 
@@ -135,15 +149,36 @@ export function DataProvider({ children }) {
     return { success: false }
   }
 
-  const updateProfileDates = async (userId, column, dates) => {
+  const createNewPost = async (title, content) => {
+    if (!currentUser) return { success: false, error: "Not logged in" }
+
+    const { data: newPost, error } = await supabase
+      .from("posts")
+      .insert([{ author_id: currentUser.id, title, content }])
+      .select("*, profiles:author_id(first_name, last_name, shift)")
+
+    if (error) {
+      console.error("Error creating post:", error)
+      return { success: false, error }
+    }
+
+    if (newPost && newPost.length > 0) {
+      setPosts(prev => [newPost[0], ...prev])
+      return { success: true, data: newPost[0] }
+    }
+    return { success: false }
+  }
+
+  const updateMultipleProfileFields = async (userId, fields) => {
     const { data: updated, error } = await supabase
       .from("profiles")
-      .update({ [column]: dates })
+      .update(fields)
       .eq("id", userId)
       .select()
 
     if (error) {
-      console.error(`Error updating ${column}:`, error)
+      console.error(`Error updating profile fields:`, error.message || error)
+      if (error.details) console.error("Details:", error.details)
       return { success: false, error }
     }
 
@@ -153,6 +188,10 @@ export function DataProvider({ children }) {
       return { success: true }
     }
     return { success: false }
+  }
+
+  const updateProfileDates = async (userId, column, dates) => {
+    return await updateMultipleProfileFields(userId, { [column]: dates });
   }
 
   const [activeMatchContext, setActiveMatchContext] = useState(null) // { date: 'YYYY-MM-DD', equipment: '...' }
@@ -308,8 +347,9 @@ export function DataProvider({ children }) {
   return (
     <DataContext.Provider value={{ 
       data, setData, 
+      posts, setPosts, createNewPost,
       currentUser, setCurrentUser, 
-      updateShift, createProfile, updateProfileDates, 
+      updateShift, createProfile, updateProfileDates, updateMultipleProfileFields,
       activeMatchContext, setActiveMatchContext,
       inbox, sendMessage, markAsRead, unreadCount,
       acceptCoverageRequest, acceptCoverageOffer,

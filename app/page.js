@@ -14,6 +14,8 @@ import MessagesComponent from "./components/MessagesComponent/MessagesComponent"
 import CoverageRequestComponent from "./components/MutualsPostsComponent/CoverageRequestComponent"
 import OfferCoverageComponent from "./components/MutualsPostsComponent/OfferCoverageComponent"
 
+
+
 export default function Home () {
   const [mobileContent, setMobileContent] = useState("home")
   const { theme, toggleTheme } = useTheme();
@@ -72,7 +74,10 @@ export default function Home () {
         </div>
       </nav>
 
+      
+
       <main className={`${styles.mainContent} animate-fade-in`}>
+       
         {mobileContent === "home" && (
           <MainPageComponent onNavigate={handleNavButtonClick} />
         )}
