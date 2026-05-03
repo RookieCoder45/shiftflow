@@ -38,8 +38,14 @@ export default function ProfileComponent() {
   useEffect(() => {
     if (currentUser) {
       setLocalDates({
-        available: currentUser.available_to_work_dates || [],
-        coverage: currentUser.need_coverage_dates || []
+        available: Array.from(new Set([
+          ...(currentUser.available_to_work_dates_cash || []),
+          ...(currentUser.available_to_work_dates_payback || [])
+        ])),
+        coverage: Array.from(new Set([
+          ...(currentUser.need_coverage_cash_dates || []),
+          ...(currentUser.need_coverage_payback_dates || [])
+        ]))
       })
     }
   }, [currentUser])
@@ -130,8 +136,8 @@ export default function ProfileComponent() {
 
   const handleSaveDates = async () => {
     setIsUpdating(true)
-    const res1 = await updateProfileDates(currentUser.id, "available_to_work_dates", localDates.available)
-    const res2 = await updateProfileDates(currentUser.id, "need_coverage_dates", localDates.coverage)
+    const res1 = await updateProfileDates(currentUser.id, "available_to_work_dates_payback", localDates.available)
+    const res2 = await updateProfileDates(currentUser.id, "need_coverage_payback_dates", localDates.coverage)
     setIsUpdating(false)
   }
 

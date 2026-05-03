@@ -159,6 +159,15 @@
 
 .icon {
   font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconImg {
+  width: 5rem;
+  height: 5rem;
+  object-fit: contain;
 }
 
 .label {

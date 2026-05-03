@@ -64,26 +64,26 @@ export function DataProvider({ children }) {
       if (!currentUser) return
 
       const today = new Date().toISOString().split('T')[0]
-      const hasPastAvailable = currentUser.available_to_work_dates?.some(d => d.trim() < today)
-      const hasPastCoverage = currentUser.need_coverage_dates?.some(d => d.trim() < today)
-      const hasPastCash = currentUser.need_coverage_cash_dates?.some(d => d.trim() < today)
-      const hasPastPayback = currentUser.need_coverage_payback_dates?.some(d => d.trim() < today)
+      const hasPastCashAvail = currentUser.available_to_work_dates_cash?.some(d => d.trim() < today)
+      const hasPastPayAvail = currentUser.available_to_work_dates_payback?.some(d => d.trim() < today)
+      const hasPastCashCov = currentUser.need_coverage_cash_dates?.some(d => d.trim() < today)
+      const hasPastPayCov = currentUser.need_coverage_payback_dates?.some(d => d.trim() < today)
 
-      if (hasPastAvailable || hasPastCoverage || hasPastCash || hasPastPayback) {
-        const cleanAvailable = (currentUser.available_to_work_dates || []).filter(d => d.trim() >= today)
-        const cleanCoverage = (currentUser.need_coverage_dates || []).filter(d => d.trim() >= today)
-        const cleanCash = (currentUser.need_coverage_cash_dates || []).filter(d => d.trim() >= today)
-        const cleanPayback = (currentUser.need_coverage_payback_dates || []).filter(d => d.trim() >= today)
+      if (hasPastCashAvail || hasPastPayAvail || hasPastCashCov || hasPastPayCov) {
+        const cleanCashAvail = (currentUser.available_to_work_dates_cash || []).filter(d => d.trim() >= today)
+        const cleanPayAvail = (currentUser.available_to_work_dates_payback || []).filter(d => d.trim() >= today)
+        const cleanCashCov = (currentUser.need_coverage_cash_dates || []).filter(d => d.trim() >= today)
+        const cleanPayCov = (currentUser.need_coverage_payback_dates || []).filter(d => d.trim() >= today)
 
         console.log("Found past dates. Sanitizing profile...")
         
         const { data: updated, error } = await supabase
           .from("profiles")
           .update({ 
-            available_to_work_dates: cleanAvailable,
-            need_coverage_dates: cleanCoverage,
-            need_coverage_cash_dates: cleanCash,
-            need_coverage_payback_dates: cleanPayback
+            available_to_work_dates_cash: cleanCashAvail,
+            available_to_work_dates_payback: cleanPayAvail,
+            need_coverage_cash_dates: cleanCashCov,
+            need_coverage_payback_dates: cleanPayCov
           })
           .eq("id", currentUser.id)
           .select()
@@ -331,18 +331,16 @@ export function DataProvider({ children }) {
       // We fetch their current profile to modify their dates
       const { data: senderProfile } = await supabase
         .from("profiles")
-        .select("need_coverage_dates, need_coverage_cash_dates, need_coverage_payback_dates")
+        .select("need_coverage_cash_dates, need_coverage_payback_dates")
         .eq("id", senderId)
         .single()
 
       if (senderProfile) {
-        const updatedSenderDates = (senderProfile.need_coverage_dates || []).filter(d => d.trim() !== date.trim())
         const updatedCashDates = (senderProfile.need_coverage_cash_dates || []).filter(d => d.trim() !== date.trim())
         const updatedPaybackDates = (senderProfile.need_coverage_payback_dates || []).filter(d => d.trim() !== date.trim())
         await supabase
           .from("profiles")
           .update({ 
-              need_coverage_dates: updatedSenderDates,
               need_coverage_cash_dates: updatedCashDates,
               need_coverage_payback_dates: updatedPaybackDates
           })
@@ -350,8 +348,8 @@ export function DataProvider({ children }) {
       }
 
       // 2. Update Receiver (The current user who accepted)
-      const updatedMyDates = [...(currentUser.available_to_work_dates || []), date]
-      await updateProfileDates(currentUser.id, "available_to_work_dates", updatedMyDates)
+      const updatedMyDates = [...(currentUser.available_to_work_dates_payback || []), date]
+      await updateProfileDates(currentUser.id, "available_to_work_dates_payback", updatedMyDates)
 
       // 3. Send automatic confirmation message
       await sendMessage(senderId, `I'VE ACCEPTED YOUR REQUEST! I'll cover your shift on ${date}.`, "standard")
@@ -371,26 +369,27 @@ export function DataProvider({ children }) {
 
     try {
       // 1. Update Receiver (The current user who originally needed coverage, now accepting the offer)
-      const updatedCoverage = (currentUser.need_coverage_dates || []).filter(d => d.trim() !== date.trim())
       const updatedCash = (currentUser.need_coverage_cash_dates || []).filter(d => d.trim() !== date.trim())
       const updatedPayback = (currentUser.need_coverage_payback_dates || []).filter(d => d.trim() !== date.trim())
       
-      await updateProfileDates(currentUser.id, "need_coverage_dates", updatedCoverage)
-      await updateProfileDates(currentUser.id, "need_coverage_cash_dates", updatedCash)
-      await updateProfileDates(currentUser.id, "need_coverage_payback_dates", updatedPayback)
+      await updateMultipleProfileFields(currentUser.id, {
+        need_coverage_cash_dates: updatedCash,
+        need_coverage_payback_dates: updatedPayback
+      })
 
       // 2. Update Sender (The one who offered to cover)
       const { data: senderProfile } = await supabase
         .from("profiles")
-        .select("available_to_work_dates")
+        .select("available_to_work_dates_payback, available_to_work_dates_cash")
         .eq("id", senderId)
         .single()
 
       if (senderProfile) {
-        const updatedSenderDates = [...(senderProfile.available_to_work_dates || []), date]
+        // Add to payback pool by default when accepting an offer
+        const updatedSenderDates = [...(senderProfile.available_to_work_dates_payback || []), date]
         await supabase
           .from("profiles")
-          .update({ available_to_work_dates: Array.from(new Set(updatedSenderDates)) })
+          .update({ available_to_work_dates_payback: Array.from(new Set(updatedSenderDates)) })
           .eq("id", senderId)
       }
 

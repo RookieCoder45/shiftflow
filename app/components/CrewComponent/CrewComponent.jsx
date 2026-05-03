@@ -112,20 +112,30 @@ export default function CrewComponent() {
     let matchesDate = true
     if (activeDateFilter) {
       if (dateFilterType === "month") {
+        const availCash = profile.available_to_work_dates_cash || []
+        const availPay = profile.available_to_work_dates_payback || []
         const hasMonthActivity = [
-          ...(profile.available_to_work_dates || []),
-          ...(profile.need_coverage_dates || [])
+          ...availCash,
+          ...availPay,
+          ...(profile.need_coverage_cash_dates || []),
+          ...(profile.need_coverage_payback_dates || [])
         ].some(d => d.startsWith(activeDateFilter))
         matchesDate = hasMonthActivity
       } else if (dateFilterType === "day") {
         // If Smart Match is active, strictly show people who are "Available"
         if (activeMatchContext) {
-          matchesDate = (profile.available_to_work_dates || []).some(d => d.trim() === activeDateFilter)
+          const availCash = profile.available_to_work_dates_cash || []
+          const availPay = profile.available_to_work_dates_payback || []
+          matchesDate = [...availCash, ...availPay].some(d => d.trim() === activeDateFilter)
         } else {
           // Normal day filter shows anyone with any activity
+          const availCash = profile.available_to_work_dates_cash || []
+          const availPay = profile.available_to_work_dates_payback || []
           const hasDayActivity = [
-            ...(profile.available_to_work_dates || []),
-            ...(profile.need_coverage_dates || [])
+            ...availCash,
+            ...availPay,
+            ...(profile.need_coverage_cash_dates || []),
+            ...(profile.need_coverage_payback_dates || [])
           ].some(d => d.trim() === activeDateFilter)
           matchesDate = hasDayActivity
         }
@@ -441,8 +451,10 @@ export default function CrewComponent() {
                     else if (shiftType === "Day Off") shiftClass = styles.offShift;
 
                     const dStr = dateObj.toISOString().split('T')[0];
-                    const hasMutual = selectedMember.available_to_work_dates?.some(d => d.trim() === dStr);
-                    const hasCoverage = selectedMember.need_coverage_dates?.some(d => d.trim() === dStr);
+                    const hasMutual = (selectedMember.available_to_work_dates_cash?.some(d => d.trim() === dStr)) || 
+                                      (selectedMember.available_to_work_dates_payback?.some(d => d.trim() === dStr));
+                    const hasCoverage = (selectedMember.need_coverage_cash_dates?.some(d => d.trim() === dStr)) || 
+                                        (selectedMember.need_coverage_payback_dates?.some(d => d.trim() === dStr));
 
                     return (
                       <div 

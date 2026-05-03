@@ -23,8 +23,14 @@ export default function CalendarManagement({ onDatesChange, startFresh = false, 
         setLocalDates({ available: [], coverage: [] })
       } else {
         setLocalDates({
-          available: currentUser.available_to_work_dates || [],
-          coverage: currentUser.need_coverage_dates || []
+          available: Array.from(new Set([
+            ...(currentUser.available_to_work_dates_cash || []),
+            ...(currentUser.available_to_work_dates_payback || [])
+          ])),
+          coverage: Array.from(new Set([
+            ...(currentUser.need_coverage_cash_dates || []),
+            ...(currentUser.need_coverage_payback_dates || [])
+          ]))
         })
       }
     }
@@ -32,8 +38,8 @@ export default function CalendarManagement({ onDatesChange, startFresh = false, 
 
   const handleSaveDates = async () => {
     setIsUpdating(true)
-    await updateProfileDates(currentUser.id, "available_to_work_dates", localDates.available)
-    await updateProfileDates(currentUser.id, "need_coverage_dates", localDates.coverage)
+    await updateProfileDates(currentUser.id, "available_to_work_dates_payback", localDates.available)
+    await updateProfileDates(currentUser.id, "need_coverage_payback_dates", localDates.coverage)
     setIsUpdating(false)
   }
 

@@ -23,12 +23,18 @@ export default function ProfileCreationComponent() {
 
   const shiftNames = ["I", "J", "K", "L"];
   const equipmentTypes = [
-    { type: "Truck", icon: "🚛" },
-    { type: "Grader", icon: "📐" },
-    { type: "Bulldozer", icon: "🚜" },
-    { type: "Tiger", icon: "🐅" }, // Keeping tiger for character
-    { type: "Excavator", icon: "🏗️" },
-    { type: "Shovel", icon: "⛏️" },
+    { type: "Truck", icon: <img src="/dump-truck.png" alt="Truck" className={styles.iconImg} /> },
+    { type: "Grader", icon:  <img src="/grader.png" alt="Grader" className={styles.iconImg} /> },
+    { type: "Bulldozer", icon: <img src="/bulldozer.png" alt="Bulldozer" className={styles.iconImg} /> },
+    { type: "Loader", icon: <img src="/loader.png" alt="Loader" className={styles.iconImg} /> },
+    { type: "Tiger", icon: <img src="/tiger.png" alt="Tiger" className={styles.iconImg} /> }, // Keeping tiger for character
+    { type: "Excavator", icon: <img src="/excavator.png" alt="Excavator" className={styles.iconImg} /> },
+    { type: "Shovel", icon: <img src="/shovel.png" alt="Shovel" className={styles.iconImg} /> },
+    { type: "Utility", icon: <img src="/utility.png" alt="utility" className={styles.iconImg} /> },
+    { type: "Drainage", icon: <img src="/drainage.png" alt="drainage" className={styles.iconImg} /> },
+    
+    
+    
   ];
 
   if (!session) {

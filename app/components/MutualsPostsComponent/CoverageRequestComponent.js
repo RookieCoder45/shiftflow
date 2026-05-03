@@ -48,7 +48,14 @@ export default function CoverageRequestComponent({onNavigate}) {
         }
     }, [user, authLoading])
 
-    if (authLoading || !user || !currentUser) return null
+    if (authLoading || !user || !currentUser) {
+        return (
+            <div className={styles.loadingContainer}>
+                <div className={styles.spinner}></div>
+                <p>Syncing Profile Data...</p>
+            </div>
+        );
+    }
 
 
 
@@ -65,12 +72,12 @@ export default function CoverageRequestComponent({onNavigate}) {
 
             const fieldsToUpdate = { [columnToUpdate]: mergedDates };
 
-            // If Pay Back, also update available_to_work_dates
+            // If Pay Back, also update available_to_work_dates_payback
             if (!isCash && coverageRequest.available_to_work_dates.length > 0) {
-                const existingAvailable = currentUser.available_to_work_dates || [];
+                const existingAvailable = currentUser.available_to_work_dates_payback || [];
                 const newAvailableSet = new Set([...existingAvailable, ...coverageRequest.available_to_work_dates]);
                 const mergedAvailable = Array.from(newAvailableSet).sort();
-                fieldsToUpdate.available_to_work_dates = mergedAvailable;
+                fieldsToUpdate.available_to_work_dates_payback = mergedAvailable;
             }
 
             await updateMultipleProfileFields(currentUser.id, fieldsToUpdate);
@@ -144,7 +151,7 @@ export default function CoverageRequestComponent({onNavigate}) {
                         {coverageRequest.sliderIndex === 1 && (
                             <div className={styles.card} style={{padding: '0 24px 24px 24px'}}>
                                 <div className={styles.cardTop}>
-                                    <h2>Dates Needing Coverage</h2>
+                                    
                                     <CalendarManagement 
                                         startFresh={true}
                                         initialSelectionMode="coverage"
@@ -189,10 +196,11 @@ export default function CoverageRequestComponent({onNavigate}) {
                         )}
 
                         {coverageRequest.sliderIndex === 4 && (
-                            <div className={styles.card} style={{padding: '0 24px 24px 24px'}}>
+                            <div className={styles.card} style={{padding: '0 24px 24px 24px', height:"max-content"}}>
+                                <h2>Dates I Can Work (Payback)</h2>
                                 <div className={styles.cardTop}>
-                                    <h2>Dates I Can Work (Payback)</h2>
-                                    <p style={{color: 'var(--text-secondary)', marginBottom: '10px'}}>Select dates you are available to cover in return.</p>
+                                    
+                                    
                                     <CalendarManagement 
                                         startFresh={true}
                                         initialSelectionMode="available"

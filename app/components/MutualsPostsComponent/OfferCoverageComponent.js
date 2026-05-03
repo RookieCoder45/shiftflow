@@ -49,13 +49,14 @@ export default function OfferCoverageComponent({onNavigate}) {
         return <AuthComponent />;
       }
 
-    // useEffect(() => {
-    //     if (!user) {
-    //         onNavigate('profile')
-    //     }
-    // }, [user, authLoading])
-
-    // if (authLoading || !user || !currentUser) return null
+    if (authLoading || !session || !currentUser) {
+        return (
+            <div className={styles.loadingContainer}>
+                <div className={styles.spinner}></div>
+                <p>Syncing Profile Data...</p>
+            </div>
+        );
+    }
 
    
 
