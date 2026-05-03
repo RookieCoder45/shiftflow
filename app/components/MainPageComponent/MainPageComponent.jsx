@@ -228,7 +228,7 @@ export default function MainPageComponent({onNavigate}) {
               </div>
 
               <div style={{ marginTop: '12px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '10px', display: 'flex', justifyContent: 'flex-end' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem', color: 'var(--accent)' }}>
+                {/*<label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem', color: 'var(--accent)' }}>
                   <input 
                     type="checkbox" 
                     checked={smartFilterEnabled} 
@@ -236,7 +236,7 @@ export default function MainPageComponent({onNavigate}) {
                     style={{ width: '16px', height: '16px', accentColor: 'var(--accent)' }}
                   />
                   <strong>Smart Feed (Show only shifts I can cover)</strong>
-                </label>
+                </label>*/}
               </div>
             </>
           )}
