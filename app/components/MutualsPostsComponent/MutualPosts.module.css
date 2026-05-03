@@ -35,6 +35,7 @@
   flex-direction: column;
   gap: 8px;
   width: 100%;
+  position: relative;
 }
 
 .postHeader {
@@ -388,4 +389,17 @@
 .deleteBtn:hover {
   background: #ef4444;
   color: white;
+}
+
+.equipIcon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  transition: transform 0.3s ease;
+  margin-left: 4px;
+}
+
+.equipIcon:hover {
+  transform: scale(1.1) rotate(5deg);
 }

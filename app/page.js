@@ -39,7 +39,7 @@ export default function Home () {
     <div className={styles.app}>
       <nav className={`${styles.navbar} glass animate-fade-in`}>
         <div className={styles.logo}>
-          <span className={styles.logoIcon}>⚡</span>
+          <span className={styles.logoIcon} onClick={() => handleNavButtonClick("home")}>⚡</span>
           <span className={styles.logoText}>Shift<span>Flow</span></span>
         </div>
 

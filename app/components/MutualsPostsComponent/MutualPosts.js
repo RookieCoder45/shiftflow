@@ -27,10 +27,17 @@ export default function MutualPosts({list}) {
     <div className={styles.container}>
       <AnimatedList
         items={list.map(post => (
-          <div key={post.id} className={styles.postContent}>
+          <div key={post.id} className={styles.postContent} onClick={(e) => {console.log(post)}}>
             <div className={styles.postHeader}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <p className={getTitleClass(post.title)}>{post.title}</p>
+                <p className={getTitleClass(post.title)}></p>
+                {post.profiles?.main_equipment && (
+                  <img 
+                    src={`/${post.profiles.main_equipment.toLowerCase() === 'truck' ? 'dump-truck' : post.profiles.main_equipment.toLowerCase()}.png`} 
+                    alt={post.profiles.main_equipment}
+                    className={styles.equipIcon}
+                  />
+                )}
                 { (post.content.toLowerCase().includes("cash") || post.content.toLowerCase().includes("$")) && (
                   <span title="Cash Payment" style={{ fontSize: '1.2rem', filter: 'drop-shadow(0 0 5px rgba(16, 185, 129, 0.3))' }}>💵</span>
                 )}
@@ -44,11 +51,7 @@ export default function MutualPosts({list}) {
                 <span className={styles.equipValue} style={{ display: 'block', marginBottom: '8px' }}>
                   {post.content}
                 </span>
-                {post.profiles?.main_equipment && (
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '8px' }}>
-                    Equipment: {post.profiles.main_equipment}
-                  </span>
-                )}
+                
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span className={styles.equipLabel} style={{ fontSize: '0.75rem' }}>
                     Posted: {new Date(post.created_at).toLocaleString()}

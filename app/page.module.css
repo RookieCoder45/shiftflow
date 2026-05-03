@@ -29,9 +29,64 @@
 }
 
 .logoIcon {
-  font-size: 1.5rem;
-  filter: drop-shadow(0 2px 4px rgba(79, 70, 229, 0.3));
+  display: inline-block;
+  font-size: 2rem;
+  cursor: pointer;
+
+  /* smooth interaction */
+  transition: transform 0.2s ease;
+
+  /* combine animations */
+  animation: 
+    leanFloat 3s ease-in-out infinite,
+    neonPulse 2s linear infinite;
 }
+
+/* ⚖️ Lean + slight float */
+@keyframes leanFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(4deg);
+  }
+}
+
+/* 🌈 Neon glow pulse + color shift */
+@keyframes neonPulse {
+  0% {
+    filter: drop-shadow(0 0 4px #00f0ff)
+            drop-shadow(0 0 8px #00f0ff);
+  }
+  25% {
+    filter: drop-shadow(0 0 6px #ff00ff)
+            drop-shadow(0 0 12px #ff00ff);
+  }
+  50% {
+    filter: drop-shadow(0 0 8px #00ff88)
+            drop-shadow(0 0 16px #00ff88);
+  }
+  75% {
+    filter: drop-shadow(0 0 6px #ffea00)
+            drop-shadow(0 0 12px #ffea00);
+  }
+  100% {
+    filter: drop-shadow(0 0 4px #00f0ff)
+            drop-shadow(0 0 8px #00f0ff);
+  }
+}
+
+/* ✨ Hover = stronger + faster */
+.logoIcon:hover {
+  animation-duration: 1.5s, 1s;
+  transform: scale(1.2);
+}
+
+/* 👇 Click feedback */
+.logoIcon:active {
+  transform: scale(0.9);
+}
+
 
 .logoText {
   font-size: 1.25rem;
